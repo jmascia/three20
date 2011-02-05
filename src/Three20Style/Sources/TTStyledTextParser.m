@@ -193,6 +193,7 @@
 
   } else if ([tag isEqualToString:@"a"]) {
     TTStyledLinkNode* node = [[[TTStyledLinkNode alloc] init] autorelease];
+		node.className =  [attributeDict objectForKey:@"class"];
     node.URL =  [attributeDict objectForKey:@"href"];
     [self pushNode:node];
 
