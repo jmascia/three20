@@ -154,24 +154,24 @@
                         self.size.width, self.size.height);
     } else if (contentMode == UIViewContentModeScaleAspectFill) {
       CGSize imageSize = self.size;
-      if (imageSize.height < imageSize.width) {
+      if (imageSize.width/imageSize.height < rect.size.width/rect.size.height) {
+				imageSize.height = floor((imageSize.height/imageSize.width) * rect.size.width);
+        imageSize.width = rect.size.width;
+      } else {
         imageSize.width = floor((imageSize.width/imageSize.height) * rect.size.height);
         imageSize.height = rect.size.height;
-      } else {
-        imageSize.height = floor((imageSize.height/imageSize.width) * rect.size.width);
-        imageSize.width = rect.size.width;
       }
       return CGRectMake(rect.origin.x + floor(rect.size.width/2 - imageSize.width/2),
                         rect.origin.y + floor(rect.size.height/2 - imageSize.height/2),
                         imageSize.width, imageSize.height);
     } else if (contentMode == UIViewContentModeScaleAspectFit) {
       CGSize imageSize = self.size;
-      if (imageSize.height < imageSize.width) {
+      if (imageSize.width/imageSize.height < rect.size.width/rect.size.height) {
+				imageSize.width = floor((imageSize.width/imageSize.height) * rect.size.height);
+        imageSize.height = rect.size.height;
+      } else {
         imageSize.height = floor((imageSize.height/imageSize.width) * rect.size.width);
         imageSize.width = rect.size.width;
-      } else {
-        imageSize.width = floor((imageSize.width/imageSize.height) * rect.size.height);
-        imageSize.height = rect.size.height;
       }
       return CGRectMake(rect.origin.x + floor(rect.size.width/2 - imageSize.width/2),
                         rect.origin.y + floor(rect.size.height/2 - imageSize.height/2),
