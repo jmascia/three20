@@ -279,11 +279,13 @@
 - (BOOL)loadPreview:(BOOL)fromNetwork {
   if (![self loadVersion:TTPhotoVersionLarge fromNetwork:NO]) {
     if (![self loadVersion:TTPhotoVersionSmall fromNetwork:NO]) {
-      if (![self loadVersion:TTPhotoVersionThumbnail fromNetwork:fromNetwork]) {
-        return NO;
-      }
-    }
-  }
+			if (![self loadVersion:TTPhotoVersionMedium fromNetwork:NO]) {		
+				if (![self loadVersion:TTPhotoVersionThumbnail fromNetwork:fromNetwork]) {
+					return NO;
+				}
+			}
+		}
+	}
 
   return YES;
 }
