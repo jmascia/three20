@@ -159,14 +159,14 @@
     return [NSString stringWithFormat:TTLocalizedString(@"%d seconds ago", @""), seconds];
 
   } else if (elapsed < 2*TT_MINUTE) {
-    return TTLocalizedString(@"about a minute ago", @"");
+    return TTLocalizedString(@"1 minute ago", @"");
 
   } else if (elapsed < TT_HOUR) {
     int mins = (int)(elapsed/TT_MINUTE);
     return [NSString stringWithFormat:TTLocalizedString(@"%d minutes ago", @""), mins];
 
   } else if (elapsed < TT_HOUR*1.5) {
-    return TTLocalizedString(@"about an hour ago", @"");
+    return TTLocalizedString(@"1 hour ago", @"");
 
   } else if (elapsed < TT_DAY) {
     int hours = (int)((elapsed+TT_HOUR/2)/TT_HOUR);
