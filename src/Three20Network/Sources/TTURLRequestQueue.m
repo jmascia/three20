@@ -361,7 +361,9 @@ static TTURLRequestQueue* gMainQueue = nil;
 
   // If we're not POSTing or PUTting data, let's see if we can jump on an existing request.
   if (![request.httpMethod isEqualToString:@"POST"]
-      && ![request.httpMethod isEqualToString:@"PUT"]) {
+      && ![request.httpMethod isEqualToString:@"PUT"]
+			// Exception for DELETEs added by JM
+			&& ![request.httpMethod isEqualToString:@"DELETE"]) {
     // Next, see if there is an active loader for the URL and if so join that bandwagon.
     loader = [_loaders objectForKey:request.cacheKey];
     if (loader) {

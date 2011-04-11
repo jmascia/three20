@@ -175,9 +175,12 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
   NSMutableData* body = [NSMutableData data];
   NSString* beginLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
 
-  [body appendData:[[NSString stringWithFormat:@"--%@\r\n", kStringBoundary]
-    dataUsingEncoding:NSUTF8StringEncoding]];
-
+	// JM - Commented out because Tornado is complaining about this extra boundary line on top: "multipart/form-data missing headers"
+	/*
+	[body appendData:[[NSString stringWithFormat:@"--%@\r\n", kStringBoundary]
+										dataUsingEncoding:NSUTF8StringEncoding]];
+	 */
+	
   for (id key in [_parameters keyEnumerator]) {
     NSString* value = [_parameters valueForKey:key];
     // Really, this can only be an NSString. We're cheating here.
@@ -224,15 +227,19 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     [body appendData:data];
   }
 
-  [body appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n", kStringBoundary]
-                   dataUsingEncoding:NSUTF8StringEncoding]];
+	// JM - Since we're not automatically including initial boundary line, we only want to include closing
+	//			line if body contains data
+	if ([body length] > 0) {
+	  [body appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n", kStringBoundary]
+											dataUsingEncoding:NSUTF8StringEncoding]];	
+	}
 
   // If an image was found, remove it from the dictionary to save memory while we
   // perform the upload
   if (imageKey) {
     [_parameters removeObjectForKey:imageKey];
   }
-
+	
   TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"Sending %s", [body bytes]);
   return body;
 }
