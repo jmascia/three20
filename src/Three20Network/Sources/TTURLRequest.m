@@ -173,24 +173,29 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 //////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSData*)generatePostBody {
   NSMutableData* body = [NSMutableData data];
-  NSString* beginLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
-
+	// JM - Removed leading '\r\n' from beginLine, because Tornado complains about body starting
+	// with it. Instead, appending \r\n\ after each data block
+	//NSString* beginLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
+  NSString* beginLine = [NSString stringWithFormat:@"--%@\r\n", kStringBoundary];
+	
 	// JM - Commented out because Tornado is complaining about this extra boundary line on top: "multipart/form-data missing headers"
 	/*
 	[body appendData:[[NSString stringWithFormat:@"--%@\r\n", kStringBoundary]
-										dataUsingEncoding:NSUTF8StringEncoding]];
-	 */
+	 dataUsingEncoding:NSUTF8StringEncoding]];
+	*/
 	
   for (id key in [_parameters keyEnumerator]) {
     NSString* value = [_parameters valueForKey:key];
     // Really, this can only be an NSString. We're cheating here.
     if (![value isKindOfClass:[UIImage class]] &&
         ![value isKindOfClass:[NSData class]]) {
-      [body appendData:[beginLine dataUsingEncoding:NSUTF8StringEncoding]];
+			[body appendData:[beginLine dataUsingEncoding:NSUTF8StringEncoding]];
       [body appendData:[[NSString
         stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key]
           dataUsingEncoding:_charsetForMultipart]];
       [body appendData:[value dataUsingEncoding:_charsetForMultipart]];
+			// JM moved '\r\n' here from beginning of beginLine
+			[body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]]; 
     }
   }
 
@@ -225,12 +230,19 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     [body appendData:[[NSString stringWithFormat:@"Content-Type: %@\r\n\r\n", mimeType]
           dataUsingEncoding:_charsetForMultipart]];
     [body appendData:data];
+		// JM moved '\r\n' here from beginning of beginLine
+		[body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]]; 
   }
 
 	// JM - Since we're not automatically including initial boundary line, we only want to include closing
 	//			line if body contains data
 	if ([body length] > 0) {
-	  [body appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n", kStringBoundary]
+		// JM - Remove leading '\r\n' because we're appending it to data
+	  /*
+		[body appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n", kStringBoundary] 
+											dataUsingEncoding:NSUTF8StringEncoding]];	
+		 */
+	  [body appendData:[[NSString stringWithFormat:@"--%@--\r\n", kStringBoundary] 
 											dataUsingEncoding:NSUTF8StringEncoding]];	
 	}
 
