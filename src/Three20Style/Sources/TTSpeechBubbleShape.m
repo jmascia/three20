@@ -14,6 +14,13 @@
 // limitations under the License.
 //
 
+/**
+ *	Copied from Wheely's 320 fork: https://github.com/wheely/three20/blob/73e4ceaca8bf55031bf2a3adc06c21ae8c6b5291/src/Three20Style/Sources/TTSpeechBubbleShape.m
+ *	Fixes TTSpeechBubbleShape so that you can draw speech triangles on left and right (broken in 320).
+ *	
+ *	JM 4/29/11 - Fixed addLeftEdge: so that _pointAngle is handled correctly
+ */
+
 #import "Three20Style/TTSpeechBubbleShape.h"
 
 // Style (private)
@@ -63,31 +70,31 @@ static const CGFloat kInsetWidth = 5;
   CGFloat y = 0;
   CGFloat w = rect.size.width;
   CGFloat h = rect.size.height;
-
+	
   if ((_pointLocation >= 0 && _pointLocation < 45)
       || (_pointLocation >= 315 && _pointLocation < 360)) {
     if ((_pointAngle >= 270 && _pointAngle < 360) || (_pointAngle >= 0 && _pointAngle < 90)) {
-      x += _pointSize.width;
-      w -= _pointSize.width;
+      x += _pointSize.height;
+      w -= _pointSize.height;
     }
-
+		
   } else if (_pointLocation >= 45 && _pointLocation < 135) {
     if (_pointAngle >= 0 && _pointAngle < 180) {
       y += _pointSize.height;
       h -= _pointSize.height;
     }
-
+		
   } else if (_pointLocation >= 135 && _pointLocation < 225) {
     if (_pointAngle >= 90 && _pointAngle < 270) {
-      w -= _pointSize.width;
+      w -= _pointSize.height;
     }
-
+		
   } else if (_pointLocation >= 225 && _pointLocation <= 315) {
     if (_pointAngle >= 180 && _pointAngle < 360) {
       h -= _pointSize.height;
     }
   }
-
+	
   return CGRectMake(x, y, w, h);
 }
 
@@ -98,28 +105,28 @@ static const CGFloat kInsetWidth = 5;
   CGFloat fw = size.width;
   CGFloat fh = size.height;
   CGFloat pointX = 0;
-
+	
   if (lightSource >= 0 && lightSource <= 90) {
     if (reset) {
       CGPathMoveToPoint(path, nil, RD(_radius), 0);
     }
-
+		
   } else {
     if (reset) {
       CGPathMoveToPoint(path, nil, 0, RD(_radius));
     }
     CGPathAddArcToPoint(path, nil, 0, 0, RD(_radius), 0, RD(_radius));
   }
-
+	
   if (_pointLocation >= 45 && _pointLocation <= 135) {
     CGFloat ph = _pointAngle >= 0 && _pointAngle < 180 ? _pointSize.height : -_pointSize.height;
     pointX = ((_pointLocation-45)/90) * fw;
-
+		
     CGPathAddLineToPoint(path, nil, pointX-floor(_pointSize.width/2), 0);
     CGPathAddLineToPoint(path, nil, pointX, -ph);
     CGPathAddLineToPoint(path, nil, pointX+floor(_pointSize.width/2), 0);
   }
-
+	
   CGPathAddArcToPoint(path, nil, fw, 0, fw, RD(_radius), RD(_radius));
 }
 
@@ -129,11 +136,28 @@ static const CGFloat kInsetWidth = 5;
                reset:(BOOL)reset {
   CGFloat fw = size.width;
   CGFloat fh = size.height;
-
+	
   if (reset) {
     CGPathMoveToPoint(path, nil, fw, RD(_radius));
   }
-
+  
+  if (_pointLocation >= 135 && _pointLocation < 225) {
+    CGFloat ph;
+    
+    if (_pointAngle >= 90 && _pointAngle < 270) {
+      ph = _pointSize.height;
+      
+    } else {
+      ph = -_pointSize.height;
+    }
+    
+    CGFloat pointY = 0;
+    pointY = fh - (((_pointLocation-135)/90) * fh);
+    CGPathAddLineToPoint(path, nil, fw, pointY-floor(_pointSize.width/2));
+    CGPathAddLineToPoint(path, nil, fw+ph, pointY);
+    CGPathAddLineToPoint(path, nil, fw, pointY+floor(_pointSize.width/2));
+  }
+	
   CGPathAddArcToPoint(path, nil, fw, fh, fw-RD(_radius), fh, RD(_radius));
 }
 
@@ -144,21 +168,21 @@ static const CGFloat kInsetWidth = 5;
   CGFloat fw = size.width;
   CGFloat fh = size.height;
   CGFloat pointX = 0;
-
+	
   if (reset) {
     CGPathMoveToPoint(path, nil, fw-RD(_radius), fh);
   }
-
+	
   if (_pointLocation >= 225 && _pointLocation <= 315) {
     CGFloat ph;
-
+		
     if (_pointAngle >= 0 && _pointAngle < 180) {
       ph = _pointSize.height;
-
+			
     } else {
       ph = -_pointSize.height;
     }
-
+		
     pointX = fw - (((_pointLocation-225)/90) * fw);
     CGPathAddArcToPoint(path, nil,  fw-RD(_radius), fh, floor(fw/2), fh, RD(_radius));
     CGPathAddLineToPoint(path, nil, pointX+floor(_pointSize.width/2), fh);
@@ -166,7 +190,7 @@ static const CGFloat kInsetWidth = 5;
     CGPathAddLineToPoint(path, nil, pointX-floor(_pointSize.width/2), fh);
     CGPathAddLineToPoint(path, nil, RD(_radius), fh);
   }
-
+	
   CGPathAddArcToPoint(path, nil, 0, fh, 0, fh-RD(_radius), RD(_radius));
 }
 
@@ -175,14 +199,35 @@ static const CGFloat kInsetWidth = 5;
 - (void)addLeftEdge:(CGSize)size lightSource:(NSInteger)lightSource toPath:(CGMutablePathRef)path
               reset:(BOOL)reset {
   CGFloat fh = size.height;
-
+	
   if (reset) {
     CGPathMoveToPoint(path, nil, 0, fh-RD(_radius));
   }
-
+  
+  if ((_pointLocation >= 0 && _pointLocation < 45)
+      || (_pointLocation >= 315 && _pointLocation < 360)) {
+    CGFloat ph;
+    
+		if ((_pointAngle >= 90 && _pointAngle < 270)) {
+      ph = _pointSize.height;
+    } else {
+      ph = -_pointSize.height;
+    }
+    
+    CGFloat pointY = 0;
+    if (_pointLocation < 45) {
+      pointY = fh - (((45 + _pointLocation)/90) * fh);
+    } else {
+      pointY = fh - (((_pointLocation-315)/90) * fh);
+    }
+    CGPathAddLineToPoint(path, nil,  0, pointY+floor(_pointSize.width/2));
+    CGPathAddLineToPoint(path, nil, ph, pointY);
+    CGPathAddLineToPoint(path, nil,  0, pointY-floor(_pointSize.width/2));
+  }
+	
   if (lightSource >= 0 && lightSource <= 90) {
     CGPathAddArcToPoint(path, nil, 0, 0, RD(_radius), 0, RD(_radius));
-
+		
   } else {
     CGPathAddLineToPoint(path, nil, 0, RD(_radius));
   }
@@ -216,14 +261,14 @@ static const CGFloat kInsetWidth = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addToPath:(CGRect)rect {
   [self openPath:rect];
-
+	
   CGMutablePathRef path = CGPathCreateMutable();
   rect = [self subtractPointFromRect:rect];
   [self addToPath:rect.size path:path];
   CGPathCloseSubpath(path);
   [self drawPath:path inRect:rect];
   CGPathRelease(path);
-
+	
   [self closePath:rect];
 }
 
@@ -231,7 +276,7 @@ static const CGFloat kInsetWidth = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addInverseToPath:(CGRect)rect {
   [self openPath:rect];
-
+	
   CGMutablePathRef path = CGPathCreateMutable();
   rect = [self subtractPointFromRect:rect];
   CGRect shadowRect = CGRectMake(-kInsetWidth, -kInsetWidth,
@@ -241,7 +286,7 @@ static const CGFloat kInsetWidth = 5;
   CGPathCloseSubpath(path);
   [self drawPath:path inRect:rect];
   CGPathRelease(path);
-
+	
   [self closePath:rect];
 }
 
@@ -249,7 +294,7 @@ static const CGFloat kInsetWidth = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addTopEdgeToPath:(CGRect)rect lightSource:(NSInteger)lightSource {
   rect = [self subtractPointFromRect:rect];
-
+	
   CGMutablePathRef path = CGPathCreateMutable();
   [self addTopEdge:rect.size lightSource:lightSource toPath:path reset:YES];
   [self drawPath:path inRect:rect];
@@ -260,7 +305,7 @@ static const CGFloat kInsetWidth = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addRightEdgeToPath:(CGRect)rect lightSource:(NSInteger)lightSource {
   rect = [self subtractPointFromRect:rect];
-
+	
   CGMutablePathRef path = CGPathCreateMutable();
   [self addRightEdge:rect.size lightSource:lightSource toPath:path reset:YES];
   [self drawPath:path inRect:rect];
@@ -271,7 +316,7 @@ static const CGFloat kInsetWidth = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addBottomEdgeToPath:(CGRect)rect lightSource:(NSInteger)lightSource {
   rect = [self subtractPointFromRect:rect];
-
+	
   CGMutablePathRef path = CGPathCreateMutable();
   [self addBottomEdge:rect.size lightSource:lightSource toPath:path reset:YES];
   [self drawPath:path inRect:rect];
@@ -282,7 +327,7 @@ static const CGFloat kInsetWidth = 5;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addLeftEdgeToPath:(CGRect)rect lightSource:(NSInteger)lightSource {
   rect = [self subtractPointFromRect:rect];
-
+	
   CGMutablePathRef path = CGPathCreateMutable();
   [self addLeftEdge:rect.size lightSource:lightSource toPath:path reset:YES];
   [self drawPath:path inRect:rect];
