@@ -399,8 +399,11 @@
     }
   }
   if (!font) {
-    if ([elt isKindOfClass:[TTStyledLinkNode class]]
-        || [elt isKindOfClass:[TTStyledBoldNode class]]) {
+		/**
+		 * JM: Removed auto-bolding of TTStyledLinkNode. Now you must specify bolding in class style
+		 * (but this means you must specify a font size too) or you can wrap in a <b> tag.
+		 */
+		if ([elt isKindOfClass:[TTStyledBoldNode class]]) {
       font = self.boldFont;
     } else if ([elt isKindOfClass:[TTStyledItalicNode class]]) {
       font = self.italicFont;
