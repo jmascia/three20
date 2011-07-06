@@ -146,8 +146,12 @@ static const CGFloat kHeaderVisibleHeight = 60.0f;
   // If dragging ends and we are far enough to be fully showing the header view trigger a
   // load as long as we arent loading already
   if (scrollView.contentOffset.y <= kRefreshDeltaY && !_model.isLoading) {
+		/**
+		 *	JM: Setting controller as object (instead of nil), so listeners can distinguish which
+		 *	table is being reloaded
+		 */
     [[NSNotificationCenter defaultCenter]
-     postNotificationName:@"DragRefreshTableReload" object:nil];
+     postNotificationName:@"DragRefreshTableReload" object:_controller];  
     [_model load:TTURLRequestCachePolicyNetwork more:NO];
   }
 }
