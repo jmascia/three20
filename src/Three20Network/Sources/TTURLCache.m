@@ -98,6 +98,7 @@ static NSMutableDictionary* gNamedCaches = nil;
 
   TT_RELEASE_SAFELY(_name);
   TT_RELEASE_SAFELY(_imageCache);
+	TT_RELEASE_SAFELY(_imageModifiedCache);
   TT_RELEASE_SAFELY(_imageSortedList);
   TT_RELEASE_SAFELY(_cachePath);
 
@@ -189,6 +190,7 @@ static NSMutableDictionary* gNamedCaches = nil;
 
     _totalPixelCount -= image.size.width * image.size.height;
     [_imageCache removeObjectForKey:key];
+		[_imageModifiedCache removeObjectForKey:key];
     [_imageSortedList removeObjectAtIndex:0];
 
     if (_totalPixelCount <= _maxPixelCount) {
@@ -218,6 +220,10 @@ static NSMutableDictionary* gNamedCaches = nil;
       if (!_imageCache) {
         _imageCache = [[NSMutableDictionary alloc] init];
       }
+			
+			if (!_imageModifiedCache) {
+				_imageModifiedCache = [[NSMutableDictionary alloc] init];
+			}
 
       if (!_imageSortedList) {
         _imageSortedList = [[NSMutableArray alloc] init];
@@ -225,6 +231,7 @@ static NSMutableDictionary* gNamedCaches = nil;
 
       [_imageSortedList addObject:URL];
       [_imageCache setObject:image forKey:URL];
+			[_imageModifiedCache setObject:[NSDate date] forKey:URL];
     }
   }
 }
@@ -482,6 +489,7 @@ static NSMutableDictionary* gNamedCaches = nil;
 }
 
 
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)etagForKey:(NSString*)key {
   return [self loadEtagFromCacheWithKey:key];
@@ -568,8 +576,15 @@ static NSMutableDictionary* gNamedCaches = nil;
   if (image) {
     [_imageSortedList removeObject:oldURL];
     [_imageCache removeObjectForKey:oldURL];
+		[_imageModifiedCache removeObjectForKey:oldURL];
     [_imageSortedList addObject:newURL];
     [_imageCache setObject:image forKey:newURL];
+		// JM: Transfer timestamp for old URL, if it doesn't exist then use 'now'
+		id timestamp = [self timestampForURLInCache:oldURL];
+		if (timestamp == nil) {
+			timestamp = [NSDate date];
+		}
+		[_imageModifiedCache setObject:timestamp forKey:newURL]; 
   }
   NSString* oldKey = [self keyForURL:oldURL];
   NSString* oldPath = [self cachePathForKey:oldKey];
@@ -605,6 +620,7 @@ static NSMutableDictionary* gNamedCaches = nil;
 - (void)removeURL:(NSString*)URL fromDisk:(BOOL)fromDisk {
   [_imageSortedList removeObject:URL];
   [_imageCache removeObjectForKey:URL];
+	[_imageModifiedCache removeObjectForKey:URL];
 
   if (fromDisk) {
     NSString* key = [self keyForURL:URL];
@@ -630,6 +646,7 @@ static NSMutableDictionary* gNamedCaches = nil;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)removeAll:(BOOL)fromDisk {
   [_imageCache removeAllObjects];
+	[_imageModifiedCache removeAllObjects];
   [_imageSortedList removeAllObjects];
   _totalPixelCount = 0;
 
@@ -696,6 +713,35 @@ static NSMutableDictionary* gNamedCaches = nil;
     TTDCONDITIONLOG(TTDFLAG_URLCACHE, @"  %f x %f %@", image.size.width, image.size.height, key);
   }
 #endif
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSDate*)timestampForURLInCache:(NSString*)URL {
+	// If URL refers to image in image cache
+	if (nil != [_imageCache objectForKey:URL]) {
+		id object = [_imageModifiedCache objectForKey:URL];
+		if ([object isKindOfClass:[NSDate class]]) {
+			// Return timestamp of cached image
+			return (NSDate*)object;
+		} else {
+			// If we don't have a timestamp for the image, then assume the worst and return a time in distant past
+			return [NSDate distantPast];
+		}
+	}
+	// If URL refers to data in data cache
+	else if ([self hasDataForURL:URL]) {		
+		NSString* filePath = [self cachePathForURL:URL];
+		NSFileManager* fm = [NSFileManager defaultManager];
+		if ([fm fileExistsAtPath:filePath]) {
+			NSDictionary* attrs = [fm attributesOfItemAtPath:filePath error:nil];
+			NSDate* modified = [attrs objectForKey:NSFileModificationDate];
+			
+			return modified;
+		}
+	}
+	
+	// Can't find the URL in caches (ignore images in bundle and documents for now...)
+	return nil;
 }
 
 

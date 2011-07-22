@@ -28,6 +28,7 @@
   NSString*             _name;
   NSString*             _cachePath;
   NSMutableDictionary*  _imageCache;
+	NSMutableDictionary*  _imageModifiedCache; // JM: Added so we can track timestamps for loaded images
   NSMutableArray*       _imageSortedList;
   NSUInteger            _totalPixelCount;
   NSUInteger            _maxPixelCount;
@@ -235,5 +236,11 @@
 - (void)invalidateAll;
 
 - (void)logMemoryUsage;
+
+/**
+ * JM: Retrieves the last modified timestamp for an image in the image cache, or data in the file cache
+ */
+- (NSDate*)timestampForURLInCache:(NSString*)URL;
+
 
 @end
