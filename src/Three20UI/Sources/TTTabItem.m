@@ -27,6 +27,7 @@
 
 @synthesize title       = _title;
 @synthesize icon        = _icon;
+@synthesize selectedIcon = _selectedIcon;
 @synthesize object      = _object;
 @synthesize badgeNumber = _badgeNumber;
 
@@ -45,6 +46,7 @@
 - (void)dealloc {
   TT_RELEASE_SAFELY(_title);
   TT_RELEASE_SAFELY(_icon);
+	TT_RELEASE_SAFELY(_selectedIcon);
   TT_RELEASE_SAFELY(_object);
 
   [super dealloc];
