@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #import "Three20Network/TTURLRequest.h"
 
+
 // Network
 #import "Three20Network/TTGlobalNetwork.h"
 #import "Three20Network/TTURLResponse.h"
@@ -28,7 +29,7 @@
 #import "Three20Core/NSStringAdditions.h"
 
 static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
-
+const NSTimeInterval TTURLRequestUseDefaultTimeout = -1.0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,31 +56,38 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 @synthesize totalBytesLoaded      = _totalBytesLoaded;
 @synthesize totalBytesExpected    = _totalBytesExpected;
 
+@synthesize totalBytesDownloaded  = _totalBytesDownloaded;
+@synthesize totalContentLength    = _totalContentLength;
+
+@synthesize timeoutInterval       = _timeoutInterval;
+
 @synthesize userInfo              = _userInfo;
 @synthesize isLoading             = _isLoading;
 
 @synthesize shouldHandleCookies   = _shouldHandleCookies;
 @synthesize respondedFromCache    = _respondedFromCache;
 @synthesize filterPasswordLogging = _filterPasswordLogging;
+@synthesize multiPartForm         = _multiPartForm;
 
 @synthesize delegates             = _delegates;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 + (TTURLRequest*)request {
-  return [[[TTURLRequest alloc] init] autorelease];
+  return [[[self alloc] init] autorelease];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 + (TTURLRequest*)requestWithURL:(NSString*)URL delegate:(id /*<TTURLRequestDelegate>*/)delegate {
-  return [[[TTURLRequest alloc] initWithURL:URL delegate:delegate] autorelease];
+  return [[[self alloc] initWithURL:URL delegate:delegate] autorelease];
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithURL:(NSString*)URL delegate:(id /*<TTURLRequestDelegate>*/)delegate {
-  if (self = [self init]) {
+	self = [self init];
+  if (self) {
     _urlPath = [URL retain];
     if (nil != delegate) {
       [_delegates addObject:delegate];
@@ -91,12 +99,15 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _delegates = TTCreateNonRetainingArray();
     _cachePolicy = TTURLRequestCachePolicyDefault;
     _cacheExpirationAge = TT_DEFAULT_CACHE_EXPIRATION_AGE;
     _shouldHandleCookies = YES;
     _charsetForMultipart = NSUTF8StringEncoding;
+    _multiPartForm = YES;
+    _timeoutInterval = TTURLRequestUseDefaultTimeout;
   }
   return self;
 }
@@ -123,7 +134,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)description {
-  return [NSString stringWithFormat:@"<TTURLRequest %@>", _urlPath];
+  return [NSString stringWithFormat:@"<%@ %@>", [super description], _urlPath];
 }
 
 
@@ -143,17 +154,33 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     }
 
     return [joined md5Hash];
+
   } else {
     return [self.urlPath md5Hash];
   }
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSData *)generateNonMultipartPostBody {
+  NSMutableArray *paramsArray = [NSMutableArray array];
+  for (id key in [_parameters keyEnumerator]) {
+    NSString *value = [_parameters valueForKey:key];
+    if ([key isKindOfClass:[NSString class]] && [value isKindOfClass:[NSString class]]) {
+      [paramsArray addObject:[NSString stringWithFormat:@"%@=%@", 
+                              key, 
+                              [[value stringByReplacingOccurrencesOfString:@" " withString:@"+"] urlEncoded]]];
+    }
+  }
+  NSString *stringBody = [paramsArray componentsJoinedByString:@"&"];
+  return [stringBody dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)appendImageData:(NSData*)data
                withName:(NSString*)name
                  toBody:(NSMutableData*)body {
-  NSString *beginLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
+  NSString *beginLine = [NSString stringWithFormat:@"--%@\r\n", kStringBoundary];
+	NSString *endLine = @"\r\n";
 
   [body appendData:[beginLine dataUsingEncoding:NSUTF8StringEncoding]];
   [body appendData:[[NSString stringWithFormat:
@@ -167,22 +194,16 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
                       stringWithString:@"Content-Type: image/jpeg\r\n\r\n"]
                      dataUsingEncoding:_charsetForMultipart]];
   [body appendData:data];
+		[body appendData:[endLine dataUsingEncoding:NSUTF8StringEncoding]];
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSData*)generatePostBody {
-  NSMutableData* body = [NSMutableData data];
-	// JM - Removed leading '\r\n' from beginLine, because Tornado complains about body starting
-	// with it. Instead, appending \r\n\ after each data block
-	//NSString* beginLine = [NSString stringWithFormat:@"\r\n--%@\r\n", kStringBoundary];
+
+	NSMutableData* body = [NSMutableData data];
   NSString* beginLine = [NSString stringWithFormat:@"--%@\r\n", kStringBoundary];
-	
-	// JM - Commented out because Tornado is complaining about this extra boundary line on top: "multipart/form-data missing headers"
-	/*
-	[body appendData:[[NSString stringWithFormat:@"--%@\r\n", kStringBoundary]
-	 dataUsingEncoding:NSUTF8StringEncoding]];
-	*/
+	NSString *endLine = @"\r\n";
 	
   for (id key in [_parameters keyEnumerator]) {
     NSString* value = [_parameters valueForKey:key];
@@ -194,8 +215,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
         stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key]
           dataUsingEncoding:_charsetForMultipart]];
       [body appendData:[value dataUsingEncoding:_charsetForMultipart]];
-			// JM moved '\r\n' here from beginning of beginLine
-			[body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]]; 
+		[body appendData:[endLine dataUsingEncoding:NSUTF8StringEncoding]];
     }
   }
 
@@ -208,6 +228,7 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
       [self appendImageData:data withName:key toBody:body];
       imageKey = key;
+
     } else if ([[_parameters objectForKey:key] isKindOfClass:[NSData class]]) {
       NSData* data = [_parameters objectForKey:key];
       [self appendImageData:data withName:key toBody:body];
@@ -230,21 +251,11 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
     [body appendData:[[NSString stringWithFormat:@"Content-Type: %@\r\n\r\n", mimeType]
           dataUsingEncoding:_charsetForMultipart]];
     [body appendData:data];
-		// JM moved '\r\n' here from beginning of beginLine
-		[body appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]]; 
+		[body appendData:[endLine dataUsingEncoding:NSUTF8StringEncoding]];
   }
 
-	// JM - Since we're not automatically including initial boundary line, we only want to include closing
-	//			line if body contains data
-	if ([body length] > 0) {
-		// JM - Remove leading '\r\n' because we're appending it to data
-	  /*
-		[body appendData:[[NSString stringWithFormat:@"\r\n--%@--\r\n", kStringBoundary] 
-											dataUsingEncoding:NSUTF8StringEncoding]];	
-		 */
-	  [body appendData:[[NSString stringWithFormat:@"--%@--\r\n", kStringBoundary] 
-											dataUsingEncoding:NSUTF8StringEncoding]];	
-	}
+  [body appendData:[[NSString stringWithFormat:@"--%@--\r\n", kStringBoundary]
+                   dataUsingEncoding:NSUTF8StringEncoding]];
 
   // If an image was found, remove it from the dictionary to save memory while we
   // perform the upload
@@ -267,12 +278,25 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSMutableDictionary*)headers {
+  if (!_headers) {
+    _headers = [[NSMutableDictionary alloc] init];
+  }
+  return _headers;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSData*)httpBody {
   if (_httpBody) {
     return _httpBody;
-  } else if ([[_httpMethod uppercaseString] isEqualToString:@"POST"]
-             || [[_httpMethod uppercaseString] isEqualToString:@"PUT"]) {
-    return [self generatePostBody];
+  } else if (([[_httpMethod uppercaseString] isEqualToString:@"POST"]
+              || [[_httpMethod uppercaseString] isEqualToString:@"PUT"])) {
+    if (_multiPartForm) {
+      return [self generatePostBody];      
+    } else {
+      return [self generateNonMultipartPostBody];
+    }
   } else {
     return nil;
   }
@@ -283,9 +307,15 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 - (NSString*)contentType {
   if (_contentType) {
     return _contentType;
+
   } else if ([_httpMethod isEqualToString:@"POST"]
              || [_httpMethod isEqualToString:@"PUT"]) {
-    return [NSString stringWithFormat:@"multipart/form-data; boundary=%@", kStringBoundary];
+    if (_multiPartForm) {
+      return [NSString stringWithFormat:@"multipart/form-data; boundary=%@", kStringBoundary];      
+    } else {
+      return [NSString stringWithFormat:@"application/x-www-form-urlencoded", kStringBoundary];            
+    }
+    
   } else {
     return nil;
   }
@@ -340,7 +370,6 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
   return [[TTURLRequestQueue mainQueue] sendRequest:self];
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)sendSynchronously {
   return [[TTURLRequestQueue mainQueue] sendSynchronousRequest:self];
@@ -365,7 +394,9 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Deprecated
+/**
+ * Deprecated
+ */
 - (void)setURL:(NSString*)urlPath {
   NSString* aUrlPath = [urlPath copy];
   [_urlPath release];
@@ -374,7 +405,9 @@ static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Deprecated
+/**
+ * Deprecated
+ */
 - (NSString*)URL {
   return _urlPath;
 }

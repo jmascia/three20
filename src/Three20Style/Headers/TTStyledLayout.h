@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,6 +45,8 @@
   UIFont* _boldFont;
   UIFont* _italicFont;
 
+  UITextAlignment _textAlignment;
+
   TTStyle*      _linkStyle;
   TTStyledNode* _rootNode;
   TTStyledNode* _lastNode;
@@ -55,6 +57,7 @@
 @property (nonatomic)           CGFloat         width;
 @property (nonatomic)           CGFloat         height;
 @property (nonatomic, retain)   UIFont*         font;
+@property (nonatomic)           UITextAlignment textAlignment;
 @property (nonatomic, readonly) TTStyledFrame*  rootFrame;
 @property (nonatomic, retain)   NSMutableArray* invalidImages;
 

@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithURL:(NSString*)URL {
-  if (self = [super initWithText:nil next:nil]) {
+	self = [super initWithText:nil next:nil];
+  if (self) {
     self.URL = URL;
   }
 
@@ -47,7 +48,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [self initWithURL:nil]) {
+	self = [self initWithURL:nil];
+  if (self) {
   }
 
   return self;

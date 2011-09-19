@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNext:(TTStyle*)next {
-  if (self = [super initWithNext:next]) {
+	self = [super initWithNext:next];
+  if (self) {
     _inset = UIEdgeInsetsZero;
   }
 
@@ -76,6 +77,7 @@
   insets.left += _inset.left;
   if (self.next) {
     return [self.next addToInsets:insets forSize:size];
+
   } else {
     return insets;
   }

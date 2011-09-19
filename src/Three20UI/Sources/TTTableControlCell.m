@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static const CGFloat kDefaultTextViewLines = 5;
-static const CGFloat kControlPadding = 8;
+static const CGFloat kDefaultTextViewLines = 5.0f;
+static const CGFloat kControlPadding = 8.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,8 @@ static const CGFloat kControlPadding = 8;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString*)identifier {
-  if (self = [super initWithStyle:style reuseIdentifier:identifier]) {
+	self = [super initWithStyle:style reuseIdentifier:identifier];
+  if (self) {
     self.selectionStyle = UITableViewCellSelectionStyleNone;
   }
 
@@ -128,6 +129,7 @@ static const CGFloat kControlPadding = 8;
 
   if (height < TT_ROW_HEIGHT) {
     return TT_ROW_HEIGHT;
+
   } else {
     return height;
   }
@@ -191,7 +193,13 @@ static const CGFloat kControlPadding = 8;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setObject:(id)object {
   if (object != _control && object != _item) {
-    [_control removeFromSuperview];
+    if (_control.superview == self.contentView) {
+      //on cell reuse it is possible that another
+      //cell is already the owner of _control, so
+      //check if we're its superview first
+      [_control removeFromSuperview];
+    }
+
     TT_RELEASE_SAFELY(_control);
     TT_RELEASE_SAFELY(_item);
 

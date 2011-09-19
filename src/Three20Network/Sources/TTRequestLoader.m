@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 #import "Three20Network/private/TTRequestLoader.h"
 
+//Global
+#import "Three20Network/TTErrorCodes.h"
+
 // Network
 #import "Three20Network/TTGlobalNetwork.h"
 #import "Three20Network/TTURLRequest.h"
@@ -27,6 +30,7 @@
 #import "Three20Network/private/TTURLRequestQueueInternal.h"
 
 // Core
+#import "Three20Core/NSDataAdditions.h"
 #import "Three20Core/NSObjectAdditions.h"
 #import "Three20Core/TTDebug.h"
 #import "Three20Core/TTDebugFlags.h"
@@ -48,7 +52,8 @@ static const NSInteger kLoadMaxRetries = 2;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initForRequest:(TTURLRequest*)request queue:(TTURLRequestQueue*)queue {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _urlPath            = [request.urlPath copy];
     _queue              = queue;
     _cacheKey           = [request.cacheKey retain];
@@ -81,10 +86,37 @@ static const NSInteger kLoadMaxRetries = 2;
 #pragma mark -
 #pragma mark Private
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// This method not called from outside,
+// used as a separate entry point for performSelector outside connectToURL below
+- (void)deliverDataResponse:(NSURL*)URL {
+  // http://tools.ietf.org/html/rfc2397
+  NSArray * dataSplit = [[URL resourceSpecifier] componentsSeparatedByString:@","];
+  if([dataSplit count]!=2) {
+    TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"UNRECOGNIZED data: URL %@", self.urlPath);
+    return;
+  }
+  if([[dataSplit objectAtIndex:0] rangeOfString:@"base64"].location == NSNotFound) {
+    // Strictly speaking, to be really conformant need to interpret %xx hex encoded entities.
+    // The [NSString dataUsingEncoding] doesn't do that correctly, but most documents don't use that.
+    // Skip for now.
+	_responseData = [[[dataSplit objectAtIndex:1] dataUsingEncoding:NSASCIIStringEncoding] retain];
+  } else {
+    _responseData = [[NSData dataWithBase64EncodedString:[dataSplit objectAtIndex:1]] retain];
+  }
+
+  [_queue performSelector:@selector(loader:didLoadResponse:data:) withObject:self
+    withObject:_response withObject:_responseData];
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)connectToURL:(NSURL*)URL {
   TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"Connecting to %@", _urlPath);
+  // If this is a data: url, we can decode right here ... after a delay to get out of calling thread
+  if([[URL scheme] isEqualToString:@"data"]) {
+    [self performSelector:@selector(deliverDataResponse:) withObject:URL afterDelay:0.1];
+    return;
+  }
   TTNetworkRequestStarted();
 
   TTURLRequest* request = _requests.count == 1 ? [_requests objectAtIndex:0] : nil;
@@ -136,7 +168,7 @@ static const NSInteger kLoadMaxRetries = 2;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)load:(NSURL*)URL {
-  if (!_connection) {
+  if (nil == _connection) {
     [self connectToURL:URL];
   }
 }
@@ -165,6 +197,7 @@ static const NSInteger kLoadMaxRetries = 2;
     TT_RELEASE_SAFELY(_connection);
 
     [_queue loader:self didFailLoadWithError:error];
+
   } else {
     [self connection:nil didReceiveResponse:(NSHTTPURLResponse*)response];
     [self connection:nil didReceiveData:data];
@@ -207,7 +240,24 @@ static const NSInteger kLoadMaxRetries = 2;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSError*)processResponse:(NSHTTPURLResponse*)response data:(id)data {
   for (TTURLRequest* request in _requests) {
-    NSError* error = [request.response request:request processResponse:response data:data];
+    NSError* error = nil;
+    // We need to accept valid HTTP status codes, not only 200.
+    if (!response
+        || (response.statusCode >= 200 && response.statusCode < 300)
+        || response.statusCode == 304) {
+      error = [request.response request:request processResponse:response data:data];
+    } else {
+      if ([request.response respondsToSelector:@selector(request:processErrorResponse:data:)]) {
+        error = [request.response request:request processErrorResponse:response data:data];
+      }
+      // Supply an NSError object if request.response's
+      // request:processErrorResponse:data: does not return one.
+      if (!error) {
+        TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"  FAILED LOADING (%d) %@", _response.statusCode, _urlPath);
+        NSDictionary* userInfo = [NSDictionary dictionaryWithObject:data forKey:kTTErrorResponseDataKey];
+        error = [NSError errorWithDomain:NSURLErrorDomain code:_response.statusCode userInfo:userInfo];
+      }
+    }
     if (error) {
       return error;
     }
@@ -294,12 +344,20 @@ static const NSInteger kLoadMaxRetries = 2;
   }
 
   _responseData = [[NSMutableData alloc] initWithCapacity:contentLength];
+
+    for (TTURLRequest* request in [[_requests copy] autorelease]) {
+        request.totalContentLength = contentLength;
+    }
+
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)connection:(NSURLConnection*)connection didReceiveData:(NSData*)data {
   [_responseData appendData:data];
+    for (TTURLRequest* request in [[_requests copy] autorelease]) {
+        request.totalBytesDownloaded += [data length];
+    }
 }
 
 
@@ -325,19 +383,10 @@ static const NSInteger kLoadMaxRetries = 2;
 
   TTDCONDITIONLOG(TTDFLAG_ETAGS, @"Response status code: %d", _response.statusCode);
 
-  // We need to accept valid HTTP status codes, not only 200.
-  if (_response.statusCode >= 200 && _response.statusCode < 300) {
-    [_queue loader:self didLoadResponse:_response data:_responseData];
-
-  } else if (_response.statusCode == 304) {
+  if (_response.statusCode == 304) {
     [_queue loader:self didLoadUnmodifiedResponse:_response];
-
   } else {
-    TTDCONDITIONLOG(TTDFLAG_URLREQUEST, @"  FAILED LOADING (%d) %@",
-                    _response.statusCode, _urlPath);
-    NSError* error = [NSError errorWithDomain:NSURLErrorDomain code:_response.statusCode
-                                     userInfo:nil];
-    [_queue loader:self didFailLoadWithError:error];
+    [_queue loader:self didLoadResponse:_response data:_responseData];
   }
 
   TT_RELEASE_SAFELY(_responseData);
@@ -388,7 +437,9 @@ didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge{
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Deprecated
+/**
+ * Deprecated
+ */
 - (NSString*)URL {
   return _urlPath;
 }

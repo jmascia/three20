@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@
 #import "Three20Core/TTGlobalCoreRects.h"
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static CGFloat kThumbnailRowHeight = 79;
+static CGFloat kThumbnailRowHeight = 79.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,8 @@ static CGFloat kThumbnailRowHeight = 79;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
     self.statusBarStyle = UIStatusBarStyleBlackTranslucent;
     self.navigationBarStyle = UIBarStyleBlackTranslucent;
     self.navigationBarTintColor = nil;
@@ -69,7 +70,8 @@ static CGFloat kThumbnailRowHeight = 79;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithDelegate:(id<TTThumbsViewControllerDelegate>)delegate {
-  if (self = [self initWithNibName:nil bundle:nil]) {
+	self = [self initWithNibName:nil bundle:nil];
+  if (self) {
     self.delegate = delegate;
   }
 
@@ -93,7 +95,8 @@ static CGFloat kThumbnailRowHeight = 79;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [self initWithNibName:nil bundle:nil]) {
+	self = [self initWithNibName:nil bundle:nil];
+  if (self) {
   }
 
   return self;
@@ -140,6 +143,7 @@ static CGFloat kThumbnailRowHeight = 79;
 - (NSString*)URLForPhoto:(id<TTPhoto>)photo {
   if ([photo respondsToSelector:@selector(URLValueWithName:)]) {
     return [photo URLValueWithName:@"TTPhotoViewController"];
+
   } else {
     return nil;
   }
@@ -280,7 +284,8 @@ static CGFloat kThumbnailRowHeight = 79;
   if (shouldNavigate) {
     NSString* URL = [self URLForPhoto:photo];
     if (URL) {
-      TTOpenURL(URL);
+      TTOpenURLFromView(URL, self.view);
+
     } else {
       TTPhotoViewController* controller = [self createPhotoViewController];
       controller.centerPhoto = photo;

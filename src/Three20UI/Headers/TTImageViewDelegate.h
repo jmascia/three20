@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,5 +37,12 @@
  * If error is nil then the request was cancelled.
  */
 - (void)imageView:(TTImageView*)imageView didFailLoadWithError:(NSError*)error;
+
+/**
+ * Called before the image view send a network request.
+ * At this point we have the opportunity to configure the requester
+ * with some custom options (to use ETAGs, for example).
+ */
+- (void)imageView:(TTImageView*)imageView willSendARequest:(TTURLRequest*)requester;
 
 @end

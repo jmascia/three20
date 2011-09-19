@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@
 // extJSON
 #import "extThree20JSON/TTErrorCodes.h"
 #ifdef EXTJSON_SBJSON
-#import "extThree20JSON/JSON.h"
+#import "extThree20JSON/SBJson.h"
+#import "extThree20JSON/NSString+SBJSON.h"
 #elif defined(EXTJSON_YAJL)
 #import "extThree20JSON/NSObject+YAJL.h"
 #endif
@@ -61,9 +62,11 @@
   NSError* err = nil;
   if ([data isKindOfClass:[NSData class]]) {
 #ifdef EXTJSON_SBJSON
-    NSString* json = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSString* json = [[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] autorelease];
+    // When there are newline characters in the JSON string, 
+    // the error "Unescaped control character '0x9'" will be thrown. This removes those characters.
+    json =  [json stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]]; 
     _rootObject = [[json JSONValue] retain];
-    TT_RELEASE_SAFELY(json);
     if (!_rootObject) {
       err = [NSError errorWithDomain:kTTExtJSONErrorDomain
                                 code:kTTExtJSONErrorCodeInvalidJSON

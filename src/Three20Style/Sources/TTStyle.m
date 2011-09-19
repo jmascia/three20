@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNext:(TTStyle*)next {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _next = [next retain];
   }
 
@@ -46,7 +47,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [self initWithNext:nil]) {
+	self = [self initWithNext:nil];
+  if (self) {
   }
 
   return self;

@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithElement:(TTStyledElement*)element node:(TTStyledImageNode*)node {
-  if (self = [super initWithElement:element]) {
+	self = [super initWithElement:element];
+  if (self) {
     _imageNode = node;
   }
 

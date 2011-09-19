@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@
  * TTURLRequestQueue's sendRequest.
  * For all other TTURLRequest types, they will each have their own loader.
  */
-@interface TTRequestLoader : NSObject {
+@interface TTRequestLoader : NSObject
+{
   NSString*               _urlPath;
 
   TTURLRequestQueue*      _queue;

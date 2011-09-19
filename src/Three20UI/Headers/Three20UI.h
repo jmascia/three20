@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 // UI Controllers
 #import "Three20UI/TTNavigator.h"
 #import "Three20UI/TTViewController.h"
+#import "Three20UI/TTSplitViewController.h"
 #import "Three20UI/TTNavigationController.h"
+#import "Three20UI/TTExtensionsController.h"
 #import "Three20UI/TTWebController.h"
 #import "Three20UI/TTMessageController.h"
 #import "Three20UI/TTMessageControllerDelegate.h"
@@ -44,9 +46,11 @@
 #import "Three20UI/TTScrollViewDelegate.h"
 #import "Three20UI/TTScrollViewDataSource.h"
 
+// Launcher
 #import "Three20UI/TTLauncherView.h"
 #import "Three20UI/TTLauncherViewDelegate.h"
 #import "Three20UI/TTLauncherItem.h"
+#import "Three20UI/TTLauncherPersistenceMode.h"
 
 #import "Three20UI/TTLabel.h"
 #import "Three20UI/TTStyledTextLabel.h"
@@ -81,10 +85,13 @@
 #import "Three20UI/TTTableViewPlainDelegate.h"
 #import "Three20UI/TTTableViewPlainVarHeightDelegate.h"
 #import "Three20UI/TTTableViewDragRefreshDelegate.h"
+#import "Three20UI/TTTableViewNetworkEnabledDelegate.h"
 
 #import "Three20UI/TTListDataSource.h"
 #import "Three20UI/TTSectionedDataSource.h"
 #import "Three20UI/TTTableHeaderView.h"
+#import "Three20UI/TTTableFooterInfiniteScrollView.h"
+#import "Three20UI/TTTableHeaderDragRefreshView.h"
 #import "Three20UI/TTTableViewCell.h"
 
 // Table Items

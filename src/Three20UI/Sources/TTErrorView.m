@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static const CGFloat kVPadding1 = 30;
-static const CGFloat kVPadding2 = 20;
-static const CGFloat kHPadding  = 10;
+static const CGFloat kVPadding1 = 30.0f;
+static const CGFloat kVPadding2 = 20.0f;
+static const CGFloat kHPadding  = 10.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,8 @@ static const CGFloat kHPadding  = 10;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithTitle:(NSString*)title subtitle:(NSString*)subtitle image:(UIImage*)image {
-  if (self = [self init]) {
+	self = [self init];
+  if (self) {
     self.title = title;
     self.subtitle = subtitle;
     self.image = image;
@@ -51,7 +52,8 @@ static const CGFloat kHPadding  = 10;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     _imageView = [[UIImageView alloc] init];
     _imageView.contentMode = UIViewContentModeCenter;
     [self addSubview:_imageView];
@@ -102,7 +104,7 @@ static const CGFloat kHPadding  = 10;
                       + kVPadding1 + kVPadding2;
   BOOL canShowImage = _imageView.image && self.height > maxHeight;
 
-  CGFloat totalHeight = 0;
+  CGFloat totalHeight = 0.0f;
 
   if (canShowImage) {
     totalHeight += _imageView.height;
@@ -120,6 +122,7 @@ static const CGFloat kHPadding  = 10;
     _imageView.origin = CGPointMake(floor(self.width/2 - _imageView.width/2), top);
     _imageView.hidden = NO;
     top += _imageView.height + kVPadding1;
+
   } else {
     _imageView.hidden = YES;
   }

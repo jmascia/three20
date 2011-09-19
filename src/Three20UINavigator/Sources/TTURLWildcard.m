@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _argIndex = NSNotFound;
     _argType  = TTURLArgumentTypeNone;
   }
@@ -64,6 +65,7 @@
 - (NSString*)convertPropertyOfObject:(id)object {
   if (_selector) {
     return [_selector perform:object returnType:_argType];
+
   } else {
     return @"";
   }
@@ -79,11 +81,13 @@
       TTURLSelector* newSelector = [[[TTURLSelector alloc] initWithName:name] autorelease];
       if (selector) {
         selector.next = newSelector;
+
       } else {
         self.selector = newSelector;
       }
       selector = newSelector;
     }
+
   } else {
     self.argType = TTURLArgumentTypeForProperty(cls, _name);
     self.selector = [[[TTURLSelector alloc] initWithName:_name] autorelease];

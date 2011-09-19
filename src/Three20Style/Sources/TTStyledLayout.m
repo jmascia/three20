@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,12 +51,14 @@
 @synthesize height        = _height;
 @synthesize rootFrame     = _rootFrame;
 @synthesize font          = _font;
+@synthesize textAlignment = _textAlignment;
 @synthesize invalidImages = _invalidImages;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithRootNode:(TTStyledNode*)rootNode {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _rootNode = rootNode;
   }
 
@@ -66,7 +68,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithX:(CGFloat)x width:(CGFloat)width height:(CGFloat)height {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _x = x;
     _minX = x;
     _width = width;
@@ -117,6 +120,7 @@
     if ([node isKindOfClass:[TTStyledElement class]]) {
       TTStyledElement* element = (TTStyledElement*)node;
       lastNode = [self findLastNode:element.firstChild];
+
     } else {
       lastNode = node;
     }
@@ -176,6 +180,20 @@
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)offsetFrame:(TTStyledFrame*)frame byX:(CGFloat)x {
+  frame.x += x;
+
+  if ([frame isKindOfClass:[TTStyledInlineFrame class]]) {
+    TTStyledInlineFrame* inlineFrame = (TTStyledInlineFrame*)frame;
+    TTStyledFrame* child = inlineFrame.firstChildFrame;
+    while (child) {
+      [self offsetFrame:child byX:x];
+      child = child.nextFrame;
+    }
+  }
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)expandLineWidth:(CGFloat)width {
@@ -209,12 +227,15 @@
 - (void)addFrame:(TTStyledFrame*)frame {
   if (!_rootFrame) {
     _rootFrame = [frame retain];
+
   } else if (_topFrame) {
     if (!_topFrame.firstChildFrame) {
       _topFrame.firstChildFrame = frame;
+
     } else {
       _lastFrame.nextFrame = frame;
     }
+
   } else {
     _lastFrame.nextFrame = frame;
   }
@@ -336,14 +357,41 @@
 
   // Vertically align all frames on the current line
   if (_lineFirstFrame.nextFrame) {
-    TTStyledFrame* frame = _lineFirstFrame;
+    TTStyledFrame* frame;
+
+    // Find the descender that descends the farthest below the baseline.
+    // font.descender is a negative number if the descender descends below
+    // the baseline (as most descenders do), but can also be a positive
+    // number for a descender above the baseline.
+    CGFloat lowestDescender = MAXFLOAT;
+    frame = _lineFirstFrame;
+    while (frame) {
+      UIFont* font = frame.font ? frame.font : _font;
+      lowestDescender = MIN(lowestDescender, font.descender);
+      frame = frame.nextFrame;
+    }
+
+    frame = _lineFirstFrame;
     while (frame) {
       // Align to the text baseline
       // XXXjoe Support top, bottom, and center alignment also
       if (frame.height < _lineHeight) {
         UIFont* font = frame.font ? frame.font : _font;
-        [self offsetFrame:frame by:(_lineHeight - (frame.height - font.descender))];
+        [self offsetFrame:frame by:(_lineHeight - (frame.height -
+                                                   (lowestDescender - font.descender)))];
       }
+      frame = frame.nextFrame;
+    }
+  }
+
+  // Horizontally align all frames on current line if required
+  if (_textAlignment != UITextAlignmentLeft) {
+    CGFloat remainingSpace = _width - _lineWidth;
+    CGFloat offset = _textAlignment == UITextAlignmentCenter ? remainingSpace/2 : remainingSpace;
+
+    TTStyledFrame* frame = _lineFirstFrame;
+    while (frame) {
+      [self offsetFrame:frame byX:offset];
       frame = frame.nextFrame;
     }
   }
@@ -405,8 +453,10 @@
 		 */
 		if ([elt isKindOfClass:[TTStyledBoldNode class]]) {
       font = self.boldFont;
+
     } else if ([elt isKindOfClass:[TTStyledItalicNode class]]) {
       font = self.italicFont;
+
     } else {
       font = self.font;
     }
@@ -448,6 +498,7 @@
         }
         _minX += contentWidth;
         _width -= contentWidth;
+
       } else if (padding.position == TTPositionFloatRight) {
         frame.x += _width - (_floatRightWidth + contentWidth);
         _floatRightWidth += contentWidth;
@@ -461,6 +512,7 @@
       blockFrame.width = layout.width + padding.padding.left + padding.padding.right;
       blockFrame.height = frameHeight + padding.padding.top + padding.padding.bottom;
     }
+
   } else {
     CGFloat minX = _minX, width = _width, floatLeftWidth = _floatLeftWidth,
             floatRightWidth = _floatRightWidth, floatHeight = _floatHeight;
@@ -484,6 +536,7 @@
       if (style) {
         blockFrame = [self addBlockFrame:style element:elt width:_width height:_height];
       }
+
     } else {
       if (padding) {
         _x += padding.margin.left;
@@ -530,6 +583,7 @@
 
         _height += padding.margin.bottom;
       }
+
     } else if (!isBlock && style) {
       if (padding) {
         _x += padding.padding.right + padding.margin.right;
@@ -588,6 +642,7 @@
       // The image will be placed on the next line, so create a new frame for
       // the current line and mark it with a line break
       [self breakLine];
+
     } else {
       _width = contentWidth;
     }
@@ -601,10 +656,12 @@
     [self addContentFrame:frame width:imageWidth height:imageHeight];
     [self expandLineWidth:contentWidth];
     [self inflateLineHeight:contentHeight];
+
   } else if (padding.position == TTPositionAbsolute) {
     [self addAbsoluteFrame:frame width:imageWidth height:imageHeight];
     frame.x += padding.margin.left;
     frame.y += padding.margin.top;
+
   } else if (padding.position == TTPositionFloatLeft) {
     [self addContentFrame:frame width:imageWidth height:imageHeight];
 
@@ -615,6 +672,7 @@
     }
     _minX += contentWidth;
     _width -= contentWidth;
+
   } else if (padding.position == TTPositionFloatRight) {
     [self addContentFrame:frame width:imageWidth height:imageHeight];
 
@@ -654,7 +712,7 @@
 
   NSInteger stringIndex = 0;
   NSInteger lineStartIndex = 0;
-  CGFloat frameWidth = 0;
+  CGFloat frameWidth = 0.0f;
   NSInteger frameStart = 0;
 
   while (stringIndex < length) {
@@ -683,10 +741,11 @@
           NSRange lineRange = NSMakeRange(lineStartIndex, stringIndex - lineStartIndex);
           if (lineRange.length) {
             NSString* line = [text substringWithRange:lineRange];
-            frameWidth = [[text substringWithRange:NSMakeRange(frameStart, stringIndex - frameStart)]
+            frameWidth = [[text substringWithRange:NSMakeRange(frameStart,
+                                                               stringIndex - frameStart)]
                           sizeWithFont:_font].width;
             [self addFrameForText:line element:element node:textNode width:frameWidth
-                  height:_lineHeight ? _lineHeight : [_font ttLineHeight]];
+                  height:[_font ttLineHeight]];
           }
 
           if (_lineWidth) {
@@ -708,11 +767,12 @@
         frameWidth = [[text substringWithRange:NSMakeRange(frameStart, stringIndex - frameStart)]
                       sizeWithFont:_font].width;
         [self addFrameForText:line element:element node:textNode width:frameWidth
-              height:_lineHeight ? _lineHeight : [_font ttLineHeight]];
+              height:[_font ttLineHeight]];
 
         lineStartIndex = lineRange.location + lineRange.length;
         frameStart = stringIndex;
       }
+
     } else {
       if (_lineWidth + wordSize.width > _width) {
         // The word will be placed on the next line, so create a new frame for
@@ -723,7 +783,7 @@
           frameWidth = [[text substringWithRange:NSMakeRange(frameStart, stringIndex - frameStart)]
                         sizeWithFont:_font].width;
           [self addFrameForText:line element:element node:textNode width:frameWidth
-                height:_lineHeight ? _lineHeight : [_font ttLineHeight]];
+                height:[_font ttLineHeight]];
         }
 
         if (_lineWidth) {
@@ -800,9 +860,11 @@
     if ([node isKindOfClass:[TTStyledImageNode class]]) {
       TTStyledImageNode* imageNode = (TTStyledImageNode*)node;
       [self layoutImage:imageNode container:element];
+
     } else if ([node isKindOfClass:[TTStyledElement class]]) {
       TTStyledElement* elt = (TTStyledElement*)node;
       [self layoutElement:elt];
+
     } else if ([node isKindOfClass:[TTStyledTextNode class]]) {
       TTStyledTextNode* textNode = (TTStyledTextNode*)node;
       [self layoutText:textNode container:element];

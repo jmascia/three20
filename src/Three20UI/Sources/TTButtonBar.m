@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static CGFloat kPadding         = 10;
-static CGFloat kButtonHeight    = 30;
-static CGFloat kButtonMaxWidth  = 120;
+static CGFloat kPadding         = 10.0f;
+static CGFloat kButtonHeight    = 30.0f;
+static CGFloat kButtonMaxWidth  = 120.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,8 @@ static CGFloat kButtonMaxWidth  = 120;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     _buttons = [[NSMutableArray alloc] init];
 
     self.buttonStyle = @"toolbarButton:";

@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,18 +16,23 @@
 
 #import "Three20UI/private/TTTabBarInternal.h"
 
+// Core
+#import "Three20Core/TTCorePreprocessorMacros.h"
+
 // UI
 #import "Three20UI/TTTab.h"
 #import "Three20UI/UIViewAdditions.h"
 
-        CGFloat   kTabMargin      = 10;
-const   NSInteger kMaxBadgeNumber = 99;
-static  CGFloat   kPadding        = 10;
+        CGFloat   kTabMargin      = 10.0f;
+const   NSInteger kMaxBadgeNumber = 99.0f;
+static  CGFloat   kPadding        = 10.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+TT_FIX_CATEGORY_BUG(TTTabBarInternal)
+
 @implementation TTTabBar (TTInternal)
 
 
@@ -37,9 +42,9 @@ static  CGFloat   kPadding        = 10;
 
   if (self.contentMode == UIViewContentModeScaleToFill) {
     CGFloat maxTextWidth = self.width - (kTabMargin*2 + kPadding*2*_tabViews.count);
-    CGFloat totalTextWidth = 0;
+    CGFloat totalTextWidth = 0.0f;
     CGFloat totalTabWidth = kTabMargin*2;
-    CGFloat maxTabWidth = 0;
+    CGFloat maxTabWidth = 0.0f;
     for (int i = 0; i < _tabViews.count; ++i) {
       TTTab* tab = [_tabViews objectAtIndex:i];
       [tab sizeToFit];
@@ -58,6 +63,7 @@ static  CGFloat   kPadding        = 10;
         tab.frame = CGRectMake(x, 0, ceil(textWidth * shrinkFactor) + kPadding*2 , self.height);
         x += tab.width;
       }
+
     } else {
       CGFloat averageTabWidth = ceil((self.width - kTabMargin*2)/_tabViews.count);
       if (maxTabWidth > averageTabWidth && self.width - totalTabWidth < kTabMargin) {
@@ -66,6 +72,7 @@ static  CGFloat   kPadding        = 10;
           tab.frame = CGRectMake(x, 0, tab.width, self.height);
           x += tab.width;
         }
+
       } else {
         for (int i = 0; i < _tabViews.count; ++i) {
           TTTab* tab = [_tabViews objectAtIndex:i];
@@ -74,6 +81,7 @@ static  CGFloat   kPadding        = 10;
         }
       }
     }
+
   } else {
     for (int i = 0; i < _tabViews.count; ++i) {
       TTTab* tab = [_tabViews objectAtIndex:i];

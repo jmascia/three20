@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,5 +18,15 @@
 #import "extThree20CSSStyle/TTCSSParser.h"
 
 // CSS Stylesheet
+#import "extThree20CSSStyle/TTCSSGlobalStyle.h"
 #import "extThree20CSSStyle/TTCSSStyleSheet.h"
 #import "extThree20CSSStyle/TTDefaultCSSStyleSheet.h"
+
+// CSS Models
+#import "extThree20CSSStyle/TTCSSTextShadowModel.h"
+#import "extThree20CSSStyle/TTCSSRuleSet.h"
+
+// Data Processing
+#import "extThree20CSSStyle/TTDataConverter.h"
+#import "extThree20CSSStyle/TTDataPopulator.h"
+#import "extThree20CSSStyle/TTDataPopulatorDelegate.h"

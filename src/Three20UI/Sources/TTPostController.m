@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,9 +38,10 @@
 #import "Three20Core/TTGlobalCoreLocale.h"
 #import "Three20Core/TTCorePreprocessorMacros.h"
 #import "Three20Core/NSStringAdditions.h"
+#import "Three20Core/TTGlobalCore.h"
 
-static const CGFloat kMarginX = 5;
-static const CGFloat kMarginY = 6;
+static const CGFloat kMarginX = 5.0f;
+static const CGFloat kMarginY = 6.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +58,8 @@ static const CGFloat kMarginY = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
     self.navigationItem.leftBarButtonItem =
       [[[UIBarButtonItem alloc] initWithBarButtonSystemItem: UIBarButtonSystemItemCancel
                                                      target: self
@@ -75,7 +77,8 @@ static const CGFloat kMarginY = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNavigatorURL:(NSURL*)URL query:(NSDictionary*)query {
-  if (self = [self initWithNibName:nil bundle:nil]) {
+	self = [self initWithNibName:nil bundle:nil];
+  if (self) {
     if (nil != query) {
       _delegate = [query objectForKey:@"delegate"];
       _defaultText = [[query objectForKey:@"text"] copy];
@@ -203,6 +206,8 @@ static const CGFloat kMarginY = 6;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showAnimationDidStop {
   _textView.hidden = NO;
+
+  [self.superController viewDidDisappear:YES];
 }
 
 
@@ -245,7 +250,10 @@ static const CGFloat kMarginY = 6;
     [_delegate postControllerDidCancel:self];
   }
 
-  [self dismissPopupViewControllerAnimated:YES];
+  BOOL animated = YES;
+
+  [self.superController viewWillAppear:animated];
+  [self dismissPopupViewControllerAnimated:animated];
 }
 
 
@@ -367,6 +375,9 @@ static const CGFloat kMarginY = 6;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)showInView:(UIView*)view animated:(BOOL)animated {
   [self retain];
+
+  [self.superController viewWillDisappear:animated];
+
   UIWindow* window = view.window ? view.window : [UIApplication sharedApplication].keyWindow;
 
   self.view.transform = [self transformForOrientation];
@@ -375,6 +386,7 @@ static const CGFloat kMarginY = 6;
 
   if (_defaultText) {
     _textView.text = _defaultText;
+
   } else {
     _defaultText = [_textView.text retain];
   }
@@ -395,6 +407,7 @@ static const CGFloat kMarginY = 6;
 
     if (!CGRectIsEmpty(originRect)) {
       _screenView.frame = CGRectOffset(originRect, 0, -TTStatusHeight());
+
     } else {
       [self layoutTextEditor];
       _screenView.transform = CGAffineTransformMakeScale(0.00001, 0.00001);
@@ -410,6 +423,7 @@ static const CGFloat kMarginY = 6;
 
     if (originRect.size.width) {
       [self layoutTextEditor];
+
     } else {
       _screenView.transform = CGAffineTransformIdentity;
     }
@@ -437,7 +451,6 @@ static const CGFloat kMarginY = 6;
     [self.view removeFromSuperview];
     [self release];
     superController.popupViewController = nil;
-    [superController viewWillAppear:animated];
     [superController viewDidAppear:animated];
   }
 }
@@ -498,6 +511,7 @@ static const CGFloat kMarginY = 6;
 
   if (shouldDismiss) {
     [self dismissWithResult:nil animated:YES];
+
   } else {
     [self showActivity:[self titleForActivity]];
   }
@@ -506,7 +520,8 @@ static const CGFloat kMarginY = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)cancel {
-  if (!_textView.text.isEmptyOrWhitespace
+  if (TTIsStringWithAnyText(_textView.text)
+      && !_textView.text.isWhitespaceAndNewlines
       && !(_defaultText && [_defaultText isEqualToString:_textView.text])) {
     UIAlertView* cancelAlertView = [[[UIAlertView alloc] initWithTitle:
       TTLocalizedString(@"Cancel", @"")
@@ -514,6 +529,7 @@ static const CGFloat kMarginY = 6;
       delegate:self cancelButtonTitle:TTLocalizedString(@"Yes", @"")
       otherButtonTitles:TTLocalizedString(@"No", @""), nil] autorelease];
     [cancelAlertView show];
+
   } else {
     [self dismissWithCancel];
   }
@@ -524,6 +540,8 @@ static const CGFloat kMarginY = 6;
 - (void)dismissWithResult:(id)result animated:(BOOL)animated {
   [_result release];
   _result = [result retain];
+
+  [self.superController viewWillAppear:animated];
 
   if (animated) {
     if ([_delegate respondsToSelector:@selector(postController:willAnimateTowards:)]) {
@@ -550,6 +568,7 @@ static const CGFloat kMarginY = 6;
 
     if (!CGRectIsEmpty(originRect)) {
       _screenView.frame = CGRectOffset(originRect, 0, -TTStatusHeight());
+
     } else {
       _screenView.transform = CGAffineTransformMakeScale(0.00001, 0.00001);
     }

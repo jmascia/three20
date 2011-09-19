@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,16 +33,16 @@
 #import "Three20Core/TTCorePreprocessorMacros.h"
 #import "Three20Core/TTGlobalCoreRects.h"
 
-static const CGFloat kPaddingX = 8;
-static const CGFloat kPaddingY = 9;
+static const CGFloat kPaddingX = 8.0f;
+static const CGFloat kPaddingY = 9.0f;
 
 // XXXjoe This number is very sensitive - it is specifically calculated for precise word wrapping
 // with 15pt normal helvetica.  If you change this number at all, UITextView may wrap the text
 // before or after the TTTextEditor expands or contracts its height to match.  Obviously,
 // hard-coding this value here sucks, and I need to implement a solution that works for any font.
-static const CGFloat kTextViewInset = 31;
+static const CGFloat kTextViewInset = 31.0f;
 
-static const CGFloat kUITextViewVerticalPadding = 6;
+static const CGFloat kUITextViewVerticalPadding = 6.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,8 @@ static const CGFloat kUITextViewVerticalPadding = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     _internal = [[TTTextEditorInternal alloc] initWithTextEditor:self];
     _autoresizesToText = YES;
 
@@ -93,6 +94,7 @@ static const CGFloat kUITextViewVerticalPadding = 6;
 - (UIResponder*)activeTextField {
   if (_textView && !_textView.hidden) {
     return _textView;
+
   } else {
     return _textField;
   }
@@ -193,6 +195,7 @@ static const CGFloat kUITextViewVerticalPadding = 6;
     _internal.ignoreBeginAndEnd = YES;
     [_textView becomeFirstResponder];
     [self performSelector:@selector(stopIgnoringBeginAndEnd) withObject:nil afterDelay:0];
+
   } else if (numberOfLines == 1 && _textField.hidden) {
     _textField.hidden = NO;
     _textView.hidden = YES;
@@ -250,6 +253,18 @@ static const CGFloat kUITextViewVerticalPadding = 6;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark UIResponder
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (BOOL)isFirstResponder {
+  return [[self activeTextField] isFirstResponder];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (BOOL)canBecomeFirstResponder {
+  return [[self activeTextField] canBecomeFirstResponder];
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -392,6 +407,7 @@ static const CGFloat kUITextViewVerticalPadding = 6;
 - (NSString*)text {
   if (_textView && !_textView.hidden) {
     return _textView.text;
+
   } else {
     return _textField.text;
   }
@@ -459,6 +475,7 @@ static const CGFloat kUITextViewVerticalPadding = 6;
         [scrollView scrollRectToVisible:CGRectMake(0,scrollView.contentSize.height-1,1,1)
           animated:NO];
       }
+
     } else {
       [scrollView scrollRectToVisible:CGRectMake(0,0,1,1) animated:NO];
     }

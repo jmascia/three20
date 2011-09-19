@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,16 +34,16 @@
 #import "Three20Core/TTCorePreprocessorMacros.h"
 #import "Three20Core/TTGlobalCoreLocale.h"
 
-static const CGFloat kMarginX   = 5;
-static const CGFloat kMarginY   = 7;
-static const CGFloat kPaddingX  = 10;
-static const CGFloat kPaddingY  = 10;
-static const CGFloat kSpacingX  = 4;
+static const CGFloat kMarginX   = 5.0f;
+static const CGFloat kMarginY   = 7.0f;
+static const CGFloat kPaddingX  = 10.0f;
+static const CGFloat kPaddingY  = 10.0f;
+static const CGFloat kSpacingX  = 4.0f;
 
-static const CGFloat kButtonSpacing = 12;
-static const CGFloat kButtonHeight  = 30;
+static const CGFloat kButtonSpacing = 12.0f;
+static const CGFloat kButtonHeight  = 30.0f;
 
-static const CGFloat kIndexViewMargin = 4;
+static const CGFloat kIndexViewMargin = 4.0f;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,8 @@ static const CGFloat kIndexViewMargin = 4;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     _boxView = [[TTView alloc] init];
     _boxView.backgroundColor = [UIColor clearColor];
     [self addSubview:_boxView];
@@ -128,6 +129,7 @@ static const CGFloat kIndexViewMargin = 4;
         CGRect frame = indexView.frame;
         frame.origin.x = self.width - (indexView.width + kIndexViewMargin);
         indexView.frame = frame;
+
       } else {
         indexView.frame = CGRectOffset(indexView.frame, indexView.width + kIndexViewMargin, 0);
       }
@@ -304,6 +306,7 @@ static const CGFloat kIndexViewMargin = 4;
       [_cancelButton addTarget:_searchField action:@selector(resignFirstResponder)
                      forControlEvents:UIControlEventTouchUpInside];
       [self addSubview:_cancelButton];
+
     } else {
       [_cancelButton removeFromSuperview];
       TT_RELEASE_SAFELY(_cancelButton);
@@ -325,6 +328,7 @@ static const CGFloat kIndexViewMargin = 4;
       iconView.frame = CGRectInset(iconView.frame, -floor(kMarginX/2), 0);
       _searchField.leftView = iconView;
       _searchField.leftViewMode = UITextFieldViewModeAlways;
+
     } else {
       _searchField.leftView = nil;
       _searchField.leftViewMode = UITextFieldViewModeNever;

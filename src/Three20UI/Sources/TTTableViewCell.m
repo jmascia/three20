@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@
 // UICommon
 #import "Three20UICommon/TTGlobalUICommon.h"
 
-const CGFloat   kTableCellSmallMargin = 6;
-const CGFloat   kTableCellSpacing     = 8;
-const CGFloat   kTableCellMargin      = 10;
-const CGFloat   kTableCellHPadding    = 10;
-const CGFloat   kTableCellVPadding    = 10;
+const CGFloat   kTableCellSmallMargin = 6.0f;
+const CGFloat   kTableCellSpacing     = 8.0f;
+const CGFloat   kTableCellMargin      = 10.0f;
+const CGFloat   kTableCellHPadding    = 10.0f;
+const CGFloat   kTableCellVPadding    = 10.0f;
 
 const NSInteger kTableMessageTextLineCount = 2;
 
@@ -49,6 +49,8 @@ const NSInteger kTableMessageTextLineCount = 2;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)prepareForReuse {
   self.object = nil;
+  self.textLabel.text = nil;
+  self.detailTextLabel.text = nil;
   [super prepareForReuse];
 }
 

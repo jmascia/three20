@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,12 +61,13 @@
     // TODO(jverkoey Feb 10, 2010): This logic doesn't entirely make sense. Why don't we just store
     // the data in the cache if there was a cache miss, and then just retain the image data we
     // downloaded? This needs to be tested in production.
-    UIImage* image = [[TTURLCache sharedCache] imageForURL:request.urlPath fromDisk:NO];
-
+	UIImage* image = nil;
+	if(!(request.cachePolicy | TTURLRequestCachePolicyNoCache)) {
+      image = [[TTURLCache sharedCache] imageForURL:request.urlPath fromDisk:NO];
+  }
     if (nil == image) {
       image = [UIImage imageWithData:data];
     }
-
     if (nil != image) {
       if (!request.respondedFromCache) {
 // XXXjoe Working on option to scale down really large images to a smaller size to save memory

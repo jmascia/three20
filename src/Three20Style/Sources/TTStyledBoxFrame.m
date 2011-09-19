@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,18 +71,22 @@
     TTTextStyle* textStyle = (TTTextStyle*)style;
     UIFont* font = context.font;
     context.font = textStyle.font;
+
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGContextSaveGState(ctx);
+
     if (textStyle.color) {
-      CGContextRef ctx = UIGraphicsGetCurrentContext();
-      CGContextSaveGState(ctx);
       [textStyle.color setFill];
-
-      [self drawSubframes];
-
-      CGContextRestoreGState(ctx);
-
-    } else {
-      [self drawSubframes];
     }
+
+    if (textStyle.shadowColor) {
+      CGSize offset = CGSizeMake(textStyle.shadowOffset.width, -textStyle.shadowOffset.height);
+      CGContextSetShadowWithColor(ctx, offset, 0, textStyle.shadowColor.CGColor);
+    }
+
+    [self drawSubframes];
+
+    CGContextRestoreGState(ctx);
 
     context.font = font;
 

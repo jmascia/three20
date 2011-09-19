@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 #import "Three20UI/private/TTSearchTextFieldInternal.h"
 
+// Core
+#import "Three20Core/TTCorePreprocessorMacros.h"
+
 // UI
 #import "Three20UI/TTSearchTextField.h"
 
@@ -23,6 +26,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+TT_FIX_CATEGORY_BUG(TTSearchTextFieldInternal)
+
 @implementation TTSearchTextFieldInternal
 
 @synthesize delegate = _delegate;
@@ -30,7 +35,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithTextField:(TTSearchTextField*)textField {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _textField = textField;
   }
 
@@ -48,6 +54,7 @@
 - (BOOL)textFieldShouldBeginEditing:(UITextField*)textField {
   if ([_delegate respondsToSelector:@selector(textFieldShouldBeginEditing:)]) {
     return [_delegate textFieldShouldBeginEditing:textField];
+
   } else {
     return YES;
   }
@@ -66,6 +73,7 @@
 - (BOOL)textFieldShouldEndEditing:(UITextField*)textField {
   if ([_delegate respondsToSelector:@selector(textFieldShouldEndEditing:)]) {
     return [_delegate textFieldShouldEndEditing:textField];
+
   } else {
     return YES;
   }
@@ -92,6 +100,7 @@
   if ([_delegate respondsToSelector:sel]) {
     return [_delegate textField:textField shouldChangeCharactersInRange:range
               replacementString:string];
+
   } else {
     return YES;
   }
@@ -104,6 +113,7 @@
 
   if ([_delegate respondsToSelector:@selector(textFieldShouldClear:)]) {
     return [_delegate textFieldShouldClear:textField];
+
   } else {
     return YES;
   }
@@ -120,6 +130,7 @@
   if (shouldReturn) {
     if (!_textField.searchesAutomatically) {
       [_textField search];
+
     } else {
       [_textField performSelector:@selector(doneAction)];
     }

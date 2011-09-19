@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -75,6 +75,11 @@
  * A delegate that notifies you when the image has started and finished loading.
  */
 @property (nonatomic, assign) id<TTImageViewDelegate> delegate;
+
+/**
+ * The TTURLRequest requester used to load this image.
+ */
+@property (nonatomic, readonly) TTURLRequest* request;
 
 /**
  * Cancel any pending request, remove the image, and redraw the view.

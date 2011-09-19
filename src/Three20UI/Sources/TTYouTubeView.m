@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static CGFloat kDefaultWidth = 140;
-static CGFloat kDefaultHeight = 105;
+static CGFloat kDefaultWidth = 140.0f;
+static CGFloat kDefaultHeight = 105.0f;
 
 static NSString* kEmbedHTML = @"\
 <html>\
@@ -51,7 +51,8 @@ wmode=\"transparent\" width=\"%0.0f\" height=\"%0.0f\"></embed>\
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithURLPath:(NSString*)urlPath {
-  if (self = [self initWithFrame:CGRectMake(0, 0, kDefaultWidth, kDefaultHeight)]) {
+	self = [self initWithFrame:CGRectMake(0, 0, kDefaultWidth, kDefaultHeight)];
+  if (self) {
     self.urlPath = urlPath;
   }
   return self;

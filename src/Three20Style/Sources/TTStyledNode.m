@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNextSibling:(TTStyledNode*)nextSibling {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     self.nextSibling = nextSibling;
   }
 
@@ -41,7 +42,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [self initWithNextSibling:nil]) {
+	self = [self initWithNextSibling:nil];
+  if (self) {
   }
 
   return self;
@@ -82,6 +84,7 @@
 - (NSString*)outerHTML {
   if (_nextSibling) {
     return _nextSibling.outerHTML;
+
   } else {
     return @"";
   }
@@ -92,6 +95,7 @@
 - (id)ancestorOrSelfWithClass:(Class)cls {
   if ([self isKindOfClass:cls]) {
     return self;
+
   } else {
     return [_parentNode ancestorOrSelfWithClass:cls];
   }

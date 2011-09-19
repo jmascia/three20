@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,7 +48,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithDelegate:(id<TTRecursiveProgressDelegate>)delegate {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _firstPercent = 0;
     _lastPercent = 1;
     _parent = nil;
@@ -63,7 +64,8 @@
 - (id)initWithParent:(TTRecursiveProgress*)parent
         firstPercent: (CGFloat)firstPercent
          lastPercent: (CGFloat)lastPercent {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _firstPercent = firstPercent;
     _lastPercent = lastPercent;
     _parent = parent;
@@ -85,6 +87,7 @@
   CGFloat mappedProgress = [self percentWidth] * percent + _firstPercent;
   if (nil == _parent) {
     [_delegate didSetProgress:mappedProgress];
+
   } else {
     [_parent setPercent:mappedProgress];
   }

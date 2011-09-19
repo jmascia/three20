@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNext:(TTStyle*)next {
-  if (self = [super initWithNext:next]) {
+	self = [super initWithNext:next];
+  if (self) {
     _width = 1;
     _lightSource = kDefaultLightSource;
   }
@@ -73,8 +74,11 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-+ (TTBevelBorderStyle*)styleWithHighlight:(UIColor*)highlight shadow:(UIColor*)shadowColor
-                                    width:(CGFloat)width lightSource:(NSInteger)lightSource next:(TTStyle*)next {
++ (TTBevelBorderStyle*)styleWithHighlight:(UIColor*)highlight
+                                   shadow:(UIColor*)shadowColor
+                                    width:(CGFloat)width
+                              lightSource:(NSInteger)lightSource
+                                     next:(TTStyle*)next {
   TTBevelBorderStyle* style = [[[TTBevelBorderStyle alloc] initWithNext:next] autorelease];
   style.highlight = highlight;
   style.shadow = shadowColor;
@@ -101,7 +105,7 @@
   UIColor* topColor = _lightSource >= 0 && _lightSource <= 180 ? _highlight : _shadow;
   UIColor* leftColor = _lightSource >= 90 && _lightSource <= 270
   ? _highlight : _shadow;
-  UIColor* bottomColor = _lightSource >= 180 && _lightSource <= 360 || _lightSource == 0
+  UIColor* bottomColor = (_lightSource >= 180 && _lightSource <= 360) || _lightSource == 0
   ? _highlight : _shadow;
   UIColor* rightColor = (_lightSource >= 270 && _lightSource <= 360)
   || (_lightSource >= 0 && _lightSource <= 90)
@@ -115,6 +119,7 @@
 
     rect.origin.y += _width;
     rect.size.height -= _width;
+
   } else {
     [[UIColor clearColor] setStroke];
   }
@@ -125,6 +130,7 @@
     [rightColor setStroke];
 
     rect.size.width -= _width;
+
   } else {
     [[UIColor clearColor] setStroke];
   }
@@ -135,6 +141,7 @@
     [bottomColor setStroke];
 
     rect.size.height -= _width;
+
   } else {
     [[UIColor clearColor] setStroke];
   }
@@ -146,6 +153,7 @@
 
     rect.origin.x += _width;
     rect.size.width -= _width;
+
   } else {
     [[UIColor clearColor] setStroke];
   }

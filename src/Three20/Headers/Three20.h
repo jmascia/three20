@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-
-/*! \mainpage Three20 API Documentation
- *
- * Generated from Three20 Cut <a href="http://three20.info/roadmap/v1.0a2">v1.0a2</a>.
- *
- */
 
 // Core
 #import "Three20Core/Three20Core.h"

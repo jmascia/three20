@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
     self.hidesBottomBarWhenPushed = YES;
   }
 
@@ -63,10 +64,12 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNavigatorURL:(NSURL*)URL query:(NSDictionary*)query {
-  if (self = [self initWithNibName:nil bundle:nil]) {
+	self = [self initWithNibName:nil bundle:nil];
+  if (self) {
     NSURLRequest* request = [query objectForKey:@"request"];
     if (nil != request) {
       [self openRequest:request];
+
     } else {
       [self openURL:URL];
     }
@@ -77,7 +80,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [self initWithNibName:nil bundle:nil]) {
+	self = [self initWithNibName:nil bundle:nil];
+  if (self) {
   }
 
   return self;
@@ -126,20 +130,27 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)shareAction {
+  if (nil != _actionSheet && [_actionSheet isVisible]) {
+    //should only happen on the iPad
+    assert(TTIsPad());
+    [_actionSheet dismissWithClickedButtonIndex:-1 animated:YES];
+    return;
+  }
+
   if (nil == _actionSheet) {
-    _actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self
-                                      cancelButtonTitle:TTLocalizedString(@"Cancel", @"") destructiveButtonTitle:nil
-                                      otherButtonTitles:TTLocalizedString(@"Open in Safari", @""), nil];
+    _actionSheet = [[UIActionSheet alloc] initWithTitle:nil
+                                               delegate:self
+                                      cancelButtonTitle:TTLocalizedString(@"Cancel", @"")
+                                 destructiveButtonTitle:nil
+                                      otherButtonTitles:TTLocalizedString(@"Open in Safari", @""),
+                                                        nil];
     if (TTIsPad()) {
       [_actionSheet showFromBarButtonItem:_actionButton animated:YES];
+
     }  else {
       [_actionSheet showInView: self.view];
     }
-  } else {
-    [_actionSheet dismissWithClickedButtonIndex:-1 animated:YES];
-    TT_RELEASE_SAFELY(_actionSheet);
   }
-
 }
 
 
@@ -168,19 +179,25 @@
   _webView.scalesPageToFit = YES;
   [self.view addSubview:_webView];
 
-  UIActivityIndicatorView* spinner = [[[UIActivityIndicatorView alloc]
-                                       initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite] autorelease];
+  UIActivityIndicatorView* spinner =
+    [[[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:
+      UIActivityIndicatorViewStyleWhite] autorelease];
   [spinner startAnimating];
   _activityItem = [[UIBarButtonItem alloc] initWithCustomView:spinner];
 
-  _backButton = [[UIBarButtonItem alloc] initWithImage:
-                 TTIMAGE(@"bundle://Three20.bundle/images/backIcon.png")
-                                                 style:UIBarButtonItemStylePlain target:self action:@selector(backAction)];
+  _backButton =
+    [[UIBarButtonItem alloc] initWithImage:TTIMAGE(@"bundle://Three20.bundle/images/backIcon.png")
+                                     style:UIBarButtonItemStylePlain
+                                    target:self
+                                    action:@selector(backAction)];
   _backButton.tag = 2;
   _backButton.enabled = NO;
-  _forwardButton = [[UIBarButtonItem alloc] initWithImage:
-                    TTIMAGE(@"bundle://Three20.bundle/images/forwardIcon.png")
-                                                    style:UIBarButtonItemStylePlain target:self action:@selector(forwardAction)];
+  _forwardButton =
+    [[UIBarButtonItem alloc] initWithImage:
+     TTIMAGE(@"bundle://Three20.bundle/images/forwardIcon.png")
+                                     style:UIBarButtonItemStylePlain
+                                    target:self
+                                    action:@selector(forwardAction)];
   _forwardButton.tag = 1;
   _forwardButton.enabled = NO;
   _refreshButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:
@@ -196,12 +213,20 @@
                        UIBarButtonSystemItemFlexibleSpace target:nil action:nil] autorelease];
 
   _toolbar = [[UIToolbar alloc] initWithFrame:
-              CGRectMake(0, self.view.height - TTToolbarHeight(), self.view.width, TTToolbarHeight())];
+              CGRectMake(0, self.view.height - TTToolbarHeight(),
+                         self.view.width, TTToolbarHeight())];
   _toolbar.autoresizingMask =
   UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleWidth;
   _toolbar.tintColor = TTSTYLEVAR(toolbarTintColor);
   _toolbar.items = [NSArray arrayWithObjects:
-                    _backButton, space, _forwardButton, space, _refreshButton, space, _actionButton, nil];
+                    _backButton,
+                    space,
+                    _forwardButton,
+                    space,
+                    _refreshButton,
+                    space,
+                    _actionButton,
+                    nil];
   [self.view addSubview:_toolbar];
 }
 
@@ -210,6 +235,7 @@
 - (void)viewDidUnload {
   [super viewDidUnload];
 
+  _delegate = nil;
   _webView.delegate = nil;
 
   TT_RELEASE_SAFELY(_webView);
@@ -269,9 +295,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)persistView:(NSMutableDictionary*)state {
   NSString* URL = self.URL.absoluteString;
-  if (URL.length) {
+  if (URL.length && ![URL isEqualToString:@"about:blank"]) {
     [state setObject:URL forKey:@"URL"];
     return YES;
+
   } else {
     return NO;
   }
@@ -296,6 +323,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (BOOL)webView:(UIWebView*)webView shouldStartLoadWithRequest:(NSURLRequest*)request
  navigationType:(UIWebViewNavigationType)navigationType {
+  if ([_delegate respondsToSelector:
+       @selector(webController:webView:shouldStartLoadWithRequest:navigationType:)] &&
+      ![_delegate webController:self webView:webView
+     shouldStartLoadWithRequest:request navigationType:navigationType]) {
+    return NO;
+  }
+
   if ([[TTNavigator navigator].URLMap isAppURL:request.URL]) {
     [_loadingURL release];
     _loadingURL = [[NSURL URLWithString:@"about:blank"] retain];
@@ -313,11 +347,14 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)webViewDidStartLoad:(UIWebView*)webView {
+  if ([_delegate respondsToSelector:@selector(webController:webViewDidStartLoad:)]) {
+    [_delegate webController:self webViewDidStartLoad:webView];
+  }
+
   self.title = TTLocalizedString(@"Loading...", @"");
   if (!self.navigationItem.rightBarButtonItem) {
     [self.navigationItem setRightBarButtonItem:_activityItem animated:YES];
   }
-  [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
   [_toolbar replaceItemWithTag:3 withItem:_stopButton];
   _backButton.enabled = [_webView canGoBack];
   _forwardButton.enabled = [_webView canGoForward];
@@ -326,8 +363,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)webViewDidFinishLoad:(UIWebView*)webView {
+  if ([_delegate respondsToSelector:@selector(webController:webViewDidFinishLoad:)]) {
+    [_delegate webController:self webViewDidFinishLoad:webView];
+  }
+
   TT_RELEASE_SAFELY(_loadingURL);
-  [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
   self.title = [_webView stringByEvaluatingJavaScriptFromString:@"document.title"];
   if (self.navigationItem.rightBarButtonItem == _activityItem) {
     [self.navigationItem setRightBarButtonItem:nil animated:YES];
@@ -341,6 +381,10 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)webView:(UIWebView*)webView didFailLoadWithError:(NSError*)error {
+  if ([_delegate respondsToSelector:@selector(webController:webView:didFailLoadWithError:)]) {
+    [_delegate webController:self webView:webView didFailLoadWithError:error];
+  }
+
   TT_RELEASE_SAFELY(_loadingURL);
   [self webViewDidFinishLoad:webView];
 }
@@ -361,6 +405,12 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
+  TT_RELEASE_SAFELY(_actionSheet);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSURL*)URL {
   return _loadingURL ? _loadingURL : _webView.request.URL;
 }
@@ -377,7 +427,7 @@
     _headerView = [headerView retain];
     _headerView.frame = CGRectMake(0, 0, _webView.width, _headerView.height);
 
-    self.view;
+    [self view];
     UIView* scroller = [_webView descendantOrSelfWithClass:NSClassFromString(@"UIScroller")];
     UIView* docView = [scroller descendantOrSelfWithClass:NSClassFromString(@"UIWebDocumentView")];
     [scroller addSubview:_headerView];
@@ -385,6 +435,7 @@
     if (addingHeader) {
       docView.top += headerView.height;
       docView.height -= headerView.height;
+
     } else if (removingHeader) {
       docView.top -= headerView.height;
       docView.height += headerView.height;
@@ -402,7 +453,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)openRequest:(NSURLRequest*)request {
-  self.view;
+  [self view];
   [_webView loadRequest:request];
 }
 

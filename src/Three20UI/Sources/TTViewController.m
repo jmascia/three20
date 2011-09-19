@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +50,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
     self.navigationBarTintColor = TTSTYLEVAR(navigationBarTintColor);
   }
 
@@ -60,7 +61,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [self initWithNibName:nil bundle:nil]) {
+	self = [self initWithNibName:nil bundle:nil];
+  if (self) {
   }
 
   return self;

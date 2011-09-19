@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     self.backgroundColor = [UIColor clearColor];
     self.dotStyle = @"pageDot:";
     self.hidesForSinglePage = NO;
@@ -97,7 +98,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)drawRect:(CGRect)rect {
-  if(_numberOfPages <= 1 && _hidesForSinglePage) {
+  if (_numberOfPages <= 1 && _hidesForSinglePage) {
     return;
   }
 
@@ -120,6 +121,7 @@
 
     if (i == _currentPage) {
       [self.currentDotStyle draw:context];
+
     } else {
       [self.normalDotStyle draw:context];
     }
@@ -133,7 +135,7 @@
   TTStyleContext* context = [[[TTStyleContext alloc] init] autorelease];
   CGSize dotSize = [self.normalDotStyle addToSize:CGSizeZero context:context];
 
-  CGFloat margin = 0;
+  CGFloat margin = 0.0f;
   TTBoxStyle* boxStyle = [self.normalDotStyle firstStyleOfClass:[TTBoxStyle class]];
   if (boxStyle) {
     margin = boxStyle.margin.right + boxStyle.margin.left;

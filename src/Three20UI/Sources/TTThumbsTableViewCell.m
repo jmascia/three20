@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static const CGFloat kSpacing = 4;
-static const CGFloat kDefaultThumbSize = 75;
+static const CGFloat kSpacing = 4.0f;
+static const CGFloat kDefaultThumbSize = 75.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,8 @@ static const CGFloat kDefaultThumbSize = 75;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString*)identifier {
-  if (self = [super initWithStyle:style reuseIdentifier:identifier]) {
+	self = [super initWithStyle:style reuseIdentifier:identifier];
+  if (self) {
     _thumbViews = [[NSMutableArray alloc] init];
     _thumbSize = kDefaultThumbSize;
     _thumbOrigin = CGPointMake(kSpacing, 0);
@@ -78,6 +79,7 @@ static const CGFloat kDefaultThumbSize = 75;
   if (photo) {
     thumbView.thumbURL = [photo URLForVersion:TTPhotoVersionThumbnail];
     thumbView.hidden = NO;
+
   } else {
     thumbView.thumbURL = nil;
     thumbView.hidden = YES;
@@ -161,12 +163,10 @@ static const CGFloat kDefaultThumbSize = 75;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setColumnCount:(NSInteger)columnCount {
   if (_columnCount != columnCount) {
-    if (columnCount > _columnCount) {
-      for (TTThumbView* thumbView in _thumbViews) {
-        [thumbView removeFromSuperview];
-      }
-      [_thumbViews removeAllObjects];
+    for (TTThumbView* thumbView in _thumbViews) {
+      [thumbView removeFromSuperview];
     }
+    [_thumbViews removeAllObjects];
 
     _columnCount = columnCount;
 

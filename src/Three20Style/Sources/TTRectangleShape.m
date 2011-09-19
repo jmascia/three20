@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ static TTRectangleShape* sharedRectangleShape = nil;
   CGFloat fw = rect.size.width;
   CGFloat fh = rect.size.height;
 
-  CGFloat width = 5;
+  CGFloat width = 5.0f;
   CGRect shadowRect = CGRectMake(-width, -width, fw+width*2, fh+width*2);
   CGMutablePathRef path = CGPathCreateMutable();
   CGPathAddRect(path, nil, shadowRect);

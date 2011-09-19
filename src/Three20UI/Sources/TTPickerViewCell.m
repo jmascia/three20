@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static const CGFloat kPaddingX = 8;
-static const CGFloat kPaddingY = 3;
-static const CGFloat kMaxWidth = 250;
+static const CGFloat kPaddingX = 8.0f;
+static const CGFloat kPaddingY = 3.0f;
+static const CGFloat kMaxWidth = 250.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,8 @@ static const CGFloat kMaxWidth = 250;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     _labelView = [[UILabel alloc] init];
     _labelView.backgroundColor = [UIColor clearColor];
     _labelView.textColor = TTSTYLEVAR(textColor);
@@ -88,6 +89,7 @@ static const CGFloat kMaxWidth = 250;
 - (TTStyle*)style {
   if (self.selected) {
     return TTSTYLESTATE(pickerCell:, UIControlStateSelected);
+
   } else {
     return TTSTYLESTATE(pickerCell:, UIControlStateNormal);
   }

@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithText:(NSString*)text {
-  if (self = [self initWithText:text next:nil]) {
+	self = [self initWithText:text next:nil];
+  if (self) {
   }
 
   return self;
@@ -47,7 +48,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithText:(NSString*)text next:(TTStyledNode*)nextSibling {
-  if (self = [super initWithNextSibling:nextSibling]) {
+	self = [super initWithNextSibling:nextSibling];
+  if (self) {
     if (nil != text) {
       [self addChild:[[[TTStyledTextNode alloc] initWithText:text] autorelease]];
     }
@@ -59,7 +61,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [self initWithText:nil next:nil]) {
+	self = [self initWithText:nil next:nil];
+  if (self) {
   }
 
   return self;
@@ -95,6 +98,7 @@
       [strings addObject:node.outerText];
     }
     return [strings componentsJoinedByString:@""];
+
   } else {
     return [super outerText];
   }
@@ -106,11 +110,13 @@
   NSString* html = nil;
   if (_firstChild) {
     html = [NSString stringWithFormat:@"<div>%@</div>", _firstChild.outerHTML];
+
   } else {
     html = @"<div/>";
   }
   if (_nextSibling) {
     return [NSString stringWithFormat:@"%@%@", html, _nextSibling.outerHTML];
+
   } else {
     return html;
   }
@@ -128,6 +134,7 @@
   if (!_firstChild) {
     _firstChild = [child retain];
     _lastChild = [self findLastSibling:child];
+
   } else {
     _lastChild.nextSibling = child;
     _lastChild = [self findLastSibling:child];
@@ -162,6 +169,7 @@
         if (newChild) {
           newChild.nextSibling = oldChild.nextSibling;
           node.nextSibling = newChild;
+
         } else {
           node.nextSibling = oldChild.nextSibling;
         }

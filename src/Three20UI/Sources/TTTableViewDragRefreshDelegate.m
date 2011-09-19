@@ -67,7 +67,8 @@ static const CGFloat kHeaderVisibleHeight = 60.0f;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithController:(TTTableViewController*)controller {
-  if (self = [super initWithController:controller]) {
+	self = [super initWithController:controller];
+  if (self) {
     // Add our refresh header
     _headerView = [[TTTableHeaderDragRefreshView alloc]
                           initWithFrame:CGRectMake(0,
@@ -99,6 +100,7 @@ static const CGFloat kHeaderVisibleHeight = 60.0f;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   [_model.delegates removeObject:self];
+  [_headerView removeFromSuperview];
   TT_RELEASE_SAFELY(_headerView);
   TT_RELEASE_SAFELY(_model);
 
@@ -132,6 +134,7 @@ static const CGFloat kHeaderVisibleHeight = 60.0f;
   if (_model.isLoading) {
     if (scrollView.contentOffset.y >= 0) {
       _controller.tableView.contentInset = UIEdgeInsetsZero;
+
     } else if (scrollView.contentOffset.y < 0) {
       _controller.tableView.contentInset = UIEdgeInsetsMake(kHeaderVisibleHeight, 0, 0, 0);
     }
@@ -151,7 +154,7 @@ static const CGFloat kHeaderVisibleHeight = 60.0f;
 		 *	table is being reloaded
 		 */
     [[NSNotificationCenter defaultCenter]
-     postNotificationName:@"DragRefreshTableReload" object:_controller];  
+     postNotificationName:@"DragRefreshTableReload" object:_controller];
     [_model load:TTURLRequestCachePolicyNetwork more:NO];
   }
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@
   NSString*             _userAgent;
 
   CGFloat               _imageCompressionQuality;
+  
+  NSTimeInterval        _defaultTimeout;
 
   BOOL                  _suspended;
 }
@@ -71,6 +73,18 @@
  * @default 0.75
  */
 @property (nonatomic) CGFloat imageCompressionQuality;
+
+
+/**
+ * The default Timeout used for all TTURLRequests.
+ * 
+ * This timeout is applied to all requests that have a negative timeout set.
+ *
+ * The default value is defined as kTimeout in TTURLRequestQueue.m
+ *
+ * @see TTURLRequest::timeoutInterval
+ */
+@property (nonatomic) NSTimeInterval defaultTimeout;
 
 /**
  * Get the shared cache singleton used across the application.

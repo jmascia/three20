@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,13 +44,15 @@
 @synthesize image               = _image;
 @synthesize defaultImage        = _defaultImage;
 @synthesize autoresizesToImage  = _autoresizesToImage;
+@synthesize request				= _request;
 
 @synthesize delegate = _delegate;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     _autoresizesToImage = NO;
   }
   return self;
@@ -99,6 +101,7 @@
 - (void)drawContent:(CGRect)rect {
   if (nil != _image) {
     [_image drawInRect:rect contentMode:self.contentMode];
+
   } else {
     [_defaultImage drawInRect:rect contentMode:self.contentMode];
   }
@@ -207,9 +210,14 @@
       TTURLRequest* request = [TTURLRequest requestWithURL:_urlPath delegate:self];
       request.response = [[[TTURLImageResponse alloc] init] autorelease];
 
+      // Give the delegate one chance to configure the requester.
+      if ([_delegate respondsToSelector:@selector(imageView:willSendARequest:)]) {
+    	  [_delegate imageView:self willSendARequest:request];
+      }
+
       if (![request send]) {
         // Put the default image in place while waiting for the request to load
-        if (_defaultImage && self.image != _defaultImage) {
+        if (_defaultImage && nil == self.image) {
           self.image = _defaultImage;
         }
       }

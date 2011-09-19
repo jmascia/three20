@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,8 +31,8 @@
 #import "Three20Core/NSDateAdditions.h"
 
 static const NSInteger  kMessageTextLineCount       = 2;
-static const CGFloat    kDefaultMessageImageWidth   = 34;
-static const CGFloat    kDefaultMessageImageHeight  = 34;
+static const CGFloat    kDefaultMessageImageWidth   = 34.0f;
+static const CGFloat    kDefaultMessageImageHeight  = 34.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,10 +43,12 @@ static const CGFloat    kDefaultMessageImageHeight  = 34;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString*)identifier {
-  if (self = [super initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:identifier]) {
+	self = [super initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:identifier];
+  if (self) {
     self.textLabel.font = TTSTYLEVAR(font);
     self.textLabel.textColor = TTSTYLEVAR(textColor);
     self.textLabel.highlightedTextColor = TTSTYLEVAR(highlightedTextColor);
+	self.textLabel.backgroundColor = TTSTYLEVAR(backgroundTextColor);
     self.textLabel.textAlignment = UITextAlignmentLeft;
     self.textLabel.lineBreakMode = UILineBreakModeTailTruncation;
     self.textLabel.adjustsFontSizeToFitWidth = YES;
@@ -55,6 +57,7 @@ static const CGFloat    kDefaultMessageImageHeight  = 34;
     self.detailTextLabel.font = TTSTYLEVAR(font);
     self.detailTextLabel.textColor = TTSTYLEVAR(tableSubTextColor);
     self.detailTextLabel.highlightedTextColor = TTSTYLEVAR(highlightedTextColor);
+	self.detailTextLabel.backgroundColor = TTSTYLEVAR(backgroundTextColor);
     self.detailTextLabel.textAlignment = UITextAlignmentLeft;
     self.detailTextLabel.contentMode = UIViewContentModeTop;
     self.detailTextLabel.lineBreakMode = UILineBreakModeTailTruncation;
@@ -101,6 +104,7 @@ static const CGFloat    kDefaultMessageImageHeight  = 34;
   [_imageView2 unsetImage];
   _titleLabel.text = nil;
   _timestampLabel.text = nil;
+  self.captionLabel.text = nil;
 }
 
 
@@ -108,11 +112,12 @@ static const CGFloat    kDefaultMessageImageHeight  = 34;
 - (void)layoutSubviews {
   [super layoutSubviews];
 
-  CGFloat left = 0;
+  CGFloat left = 0.0f;
   if (_imageView2) {
     _imageView2.frame = CGRectMake(kTableCellSmallMargin, kTableCellSmallMargin,
                                    kDefaultMessageImageWidth, kDefaultMessageImageHeight);
     left += kTableCellSmallMargin + kDefaultMessageImageHeight + kTableCellSmallMargin;
+
   } else {
     left = kTableCellMargin;
   }
@@ -123,6 +128,7 @@ static const CGFloat    kDefaultMessageImageHeight  = 34;
   if (_titleLabel.text.length) {
     _titleLabel.frame = CGRectMake(left, top, width, _titleLabel.font.ttLineHeight);
     top += _titleLabel.height;
+
   } else {
     _titleLabel.frame = CGRectZero;
   }
@@ -130,6 +136,7 @@ static const CGFloat    kDefaultMessageImageHeight  = 34;
   if (self.captionLabel.text.length) {
     self.captionLabel.frame = CGRectMake(left, top, width, self.captionLabel.font.ttLineHeight);
     top += self.captionLabel.height;
+
   } else {
     self.captionLabel.frame = CGRectZero;
   }
@@ -137,6 +144,7 @@ static const CGFloat    kDefaultMessageImageHeight  = 34;
   if (self.detailTextLabel.text.length) {
     CGFloat textHeight = self.detailTextLabel.font.ttLineHeight * kMessageTextLineCount;
     self.detailTextLabel.frame = CGRectMake(left, top, width, textHeight);
+
   } else {
     self.detailTextLabel.frame = CGRectZero;
   }
@@ -147,6 +155,7 @@ static const CGFloat    kDefaultMessageImageHeight  = 34;
     _timestampLabel.left = self.contentView.width - (_timestampLabel.width + kTableCellSmallMargin);
     _timestampLabel.top = _titleLabel.top;
     _titleLabel.width -= _timestampLabel.width + kTableCellSmallMargin*2;
+
   } else {
     _timestampLabel.frame = CGRectZero;
   }

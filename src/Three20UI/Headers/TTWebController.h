@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@
   UIBarButtonItem*  _activityItem;
 
   NSURL*            _loadingURL;
-  
+
   UIActionSheet*    _actionSheet;
 
   id<TTWebControllerDelegate> _delegate;
@@ -53,7 +53,7 @@
 @property (nonatomic, retain)   UIView* headerView;
 
 /**
- * The web controller delegate, currently does nothing.
+ * The web controller delegate
  */
 @property (nonatomic, assign)   id<TTWebControllerDelegate> delegate;
 
@@ -71,10 +71,18 @@
 
 @end
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * The web controller delegate, similar to UIWebViewDelegate, but prefixed with controller
+ */
 @protocol TTWebControllerDelegate <NSObject>
-// XXXjoe Need to make this similar to UIWebViewDelegate
+
+@optional
+- (BOOL)webController:(TTWebController *)controller webView:(UIWebView *)webView
+                                 shouldStartLoadWithRequest:(NSURLRequest *)request
+                                             navigationType:(UIWebViewNavigationType)navigationType;
+- (void)webController:(TTWebController *)controller webViewDidStartLoad:(UIWebView *)webView;
+- (void)webController:(TTWebController *)controller webViewDidFinishLoad:(UIWebView *)webView;
+- (void)webController:(TTWebController *)controller webView:(UIWebView *)webView
+                                       didFailLoadWithError:(NSError *)error;
+
 @end

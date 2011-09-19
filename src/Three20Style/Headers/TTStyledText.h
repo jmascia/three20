@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
   TTStyledNode*   _rootNode;
   TTStyledFrame*  _rootFrame;
   UIFont*         _font;
+  UITextAlignment _textAlignment;
   CGFloat         _width;
   CGFloat         _height;
   NSMutableArray* _invalidImages;
@@ -52,6 +53,11 @@
  * The font that will be used to measure and draw all text.
  */
 @property (nonatomic, retain) UIFont* font;
+
+/**
+ * The text alignment used for all text.
+ */
+@property (nonatomic) UITextAlignment textAlignment;
 
 /**
  * The width that the text should be constrained to fit within.

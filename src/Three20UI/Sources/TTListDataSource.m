@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithItems:(NSArray*)items {
-  if (self = [self init]) {
+	self = [self init];
+  if (self) {
     _items = [items mutableCopy];
   }
 
@@ -98,6 +99,7 @@
 - (id)tableView:(UITableView*)tableView objectForRowAtIndexPath:(NSIndexPath*)indexPath {
   if (indexPath.row < _items.count) {
     return [_items objectAtIndex:indexPath.row];
+
   } else {
     return nil;
   }

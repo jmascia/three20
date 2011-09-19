@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     self.text = @"";
     self.font = TTSTYLEVAR(font);
     self.textColor = [UIColor colorWithWhite:0.25 alpha:1];
@@ -132,18 +133,21 @@
 
   CGSize textSize = [self sizeThatFits:CGSizeZero];
 
-  CGFloat x = 0;
+  CGFloat x = 0.0f;
   if (_textAlignment == UITextAlignmentRight) {
     x = self.frame.size.width - textSize.width;
+
   } else if (_textAlignment == UITextAlignmentCenter) {
     x = ceil(self.frame.size.width/2 - textSize.width/2);
   }
 
-  CGFloat y = 0;
+  CGFloat y = 0.0f;
   if (self.contentMode == UIViewContentModeCenter) {
     y = ceil(rect.size.height/2 + _font.capHeight/2);
+
   } else if (self.contentMode == UIViewContentModeBottom) {
     y = rect.size.height + _font.descender;
+
   } else {
     y = _font.capHeight;
   }

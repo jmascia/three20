@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,11 +32,11 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static CGFloat kMargin          = 10;
-static CGFloat kPadding         = 15;
-static CGFloat kBannerPadding   = 8;
-static CGFloat kSpacing         = 6;
-static CGFloat kProgressMargin  = 6;
+static CGFloat kMargin          = 10.0f;
+static CGFloat kPadding         = 15.0f;
+static CGFloat kBannerPadding   = 8.0f;
+static CGFloat kSpacing         = 6.0f;
+static CGFloat kProgressMargin  = 6.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,8 @@ static CGFloat kProgressMargin  = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame style:(TTActivityLabelStyle)style text:(NSString*)text {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     _style = style;
     _progress = 0;
     _smoothesProgress = NO;
@@ -63,20 +64,25 @@ static CGFloat kProgressMargin  = 6;
       _bezelView.backgroundColor = [UIColor clearColor];
       _bezelView.style = TTSTYLE(blackBezel);
       self.backgroundColor = [UIColor clearColor];
+
     } else if (_style == TTActivityLabelStyleWhiteBezel) {
       _bezelView.backgroundColor = [UIColor clearColor];
       _bezelView.style = TTSTYLE(whiteBezel);
       self.backgroundColor = [UIColor clearColor];
+
     } else if (_style == TTActivityLabelStyleWhiteBox) {
       _bezelView.backgroundColor = [UIColor clearColor];
       self.backgroundColor = [UIColor whiteColor];
+
     } else if (_style == TTActivityLabelStyleBlackBox) {
       _bezelView.backgroundColor = [UIColor clearColor];
       self.backgroundColor = [UIColor colorWithWhite:0 alpha:0.8];
+
     } else if (_style == TTActivityLabelStyleBlackBanner) {
       _bezelView.backgroundColor = [UIColor clearColor];
       _bezelView.style = TTSTYLE(blackBanner);
       self.backgroundColor = [UIColor clearColor];
+
     } else {
       _bezelView.backgroundColor = [UIColor clearColor];
       self.backgroundColor = [UIColor clearColor];
@@ -96,6 +102,7 @@ static CGFloat kProgressMargin  = 6;
                                                             UIActivityIndicatorViewStyleWhite];
       _label.font = TTSTYLEVAR(activityLabelFont);
       _label.textColor = [UIColor whiteColor];
+
     } else if (_style == TTActivityLabelStyleGray
                || _style == TTActivityLabelStyleWhiteBox
                || _style == TTActivityLabelStyleWhiteBezel) {
@@ -103,6 +110,7 @@ static CGFloat kProgressMargin  = 6;
                                                             UIActivityIndicatorViewStyleGray];
       _label.font = TTSTYLEVAR(activityLabelFont);
       _label.textColor = TTSTYLEVAR(tableActivityTextColor);
+
     } else if (_style == TTActivityLabelStyleBlackBezel || _style == TTActivityLabelStyleBlackBox) {
       _activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:
                                                             UIActivityIndicatorViewStyleWhiteLarge];
@@ -111,6 +119,7 @@ static CGFloat kProgressMargin  = 6;
       _label.textColor = [UIColor whiteColor];
       _label.shadowColor = [UIColor colorWithWhite:0 alpha:0.3];
       _label.shadowOffset = CGSizeMake(1, 1);
+
     } else if (_style == TTActivityLabelStyleBlackBanner) {
       _activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:
                                                             UIActivityIndicatorViewStyleWhite];
@@ -131,7 +140,8 @@ static CGFloat kProgressMargin  = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame style:(TTActivityLabelStyle)style {
-  if (self = [self initWithFrame:frame style:style text:nil]) {
+	self = [self initWithFrame:frame style:style text:nil];
+  if (self) {
   }
 
   return self;
@@ -140,7 +150,8 @@ static CGFloat kProgressMargin  = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithStyle:(TTActivityLabelStyle)style {
-  if (self = [self initWithFrame:CGRectZero style:style text:nil]) {
+	self = [self initWithFrame:CGRectZero style:style text:nil];
+  if (self) {
   }
 
   return self;
@@ -149,7 +160,8 @@ static CGFloat kProgressMargin  = 6;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [self initWithFrame:frame style:TTActivityLabelStyleWhiteBox text:nil]) {
+	self = [self initWithFrame:frame style:TTActivityLabelStyleWhiteBox text:nil];
+  if (self) {
   }
 
   return self;
@@ -179,11 +191,12 @@ static CGFloat kProgressMargin  = 6;
 
   CGSize textSize = [_label.text sizeWithFont:_label.font];
 
-  CGFloat indicatorSize = 0;
+  CGFloat indicatorSize = 0.0f;
   [_activityIndicator sizeToFit];
   if (_activityIndicator.isAnimating) {
     if (_activityIndicator.height > textSize.height) {
       indicatorSize = textSize.height;
+
     } else {
       indicatorSize = _activityIndicator.height;
     }
@@ -203,6 +216,7 @@ static CGFloat kProgressMargin  = 6;
     padding = kPadding;
     bezelWidth = contentWidth + padding*2;
     bezelHeight = contentHeight + padding*2;
+
   } else {
     margin = 0;
     padding = kBannerPadding;
@@ -250,6 +264,7 @@ static CGFloat kProgressMargin  = 6;
   CGFloat padding;
   if (_style == TTActivityLabelStyleBlackBezel || _style == TTActivityLabelStyleWhiteBezel) {
     padding = kPadding;
+
   } else {
     padding = kBannerPadding;
   }
@@ -267,6 +282,7 @@ static CGFloat kProgressMargin  = 6;
 - (void)smoothTimer {
   if (_progressView.progress < _progress) {
     _progressView.progress += 0.01;
+
   } else {
     TT_INVALIDATE_TIMER(_smoothTimer);
   }
@@ -338,6 +354,7 @@ static CGFloat kProgressMargin  = 6;
       _smoothTimer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self
                               selector:@selector(smoothTimer) userInfo:nil repeats:YES];
     }
+
   } else {
     _progressView.progress = progress;
   }

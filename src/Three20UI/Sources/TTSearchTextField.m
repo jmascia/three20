@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,8 +41,8 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static const CGFloat kShadowHeight = 24;
-static const CGFloat kDesiredTableHeight = 150;
+static const CGFloat kShadowHeight = 24.0f;
+static const CGFloat kDesiredTableHeight = 150.0f;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,8 @@ static const CGFloat kDesiredTableHeight = 150;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     _internal = [[TTSearchTextFieldInternal alloc] initWithTextField:self];
 
     self.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -107,6 +108,7 @@ static const CGFloat kDesiredTableHeight = 150;
       initWithBarButtonSystemItem:UIBarButtonSystemItemDone
       target:self action:@selector(doneAction)] autorelease];
       [controller.navigationItem setRightBarButtonItem:doneButton animated:YES];
+
     } else {
       [_previousNavigationItem setRightBarButtonItem:_previousRightBarButtonItem animated:YES];
       TT_RELEASE_SAFELY(_previousRightBarButtonItem);
@@ -146,6 +148,7 @@ static const CGFloat kDesiredTableHeight = 150;
 - (NSString*)searchText {
   if (!self.hasText) {
     return @"";
+
   } else {
     NSCharacterSet* whitespace = [NSCharacterSet whitespaceCharacterSet];
     return [self.text stringByTrimmingCharactersInSet:whitespace];
@@ -192,6 +195,7 @@ static const CGFloat kDesiredTableHeight = 150;
     [self layoutIfNeeded];
     [self showSearchResults:YES];
     [self.tableView reloadData];
+
   } else {
     [self showSearchResults:NO];
   }
@@ -251,6 +255,7 @@ static const CGFloat kDesiredTableHeight = 150;
 - (CGFloat)tableView:(UITableView*)tableView heightForRowAtIndexPath:(NSIndexPath*)indexPath {
   if (_rowHeight) {
     return _rowHeight;
+
   } else {
     id object = [_dataSource tableView:tableView objectForRowAtIndexPath:indexPath];
     Class cls = [_dataSource tableView:tableView cellClassForObject:object];
@@ -264,7 +269,7 @@ static const CGFloat kDesiredTableHeight = 150;
   if ([_internal.delegate respondsToSelector:@selector(textField:didSelectObject:)]) {
     id object = [_dataSource tableView:tableView objectForRowAtIndexPath:indexPath];
     UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-    if (cell.selectionStyle != UITableViewCellSeparatorStyleNone) {
+    if (cell.selectionStyle != UITableViewCellSelectionStyleNone) {
       [_internal.delegate performSelector:@selector(textField:didSelectObject:) withObject:self
                           withObject:object];
     }
@@ -388,6 +393,7 @@ static const CGFloat kDesiredTableHeight = 150;
   if (searchesAutomatically) {
     self.returnKeyType = UIReturnKeyDone;
     self.enablesReturnKeyAutomatically = NO;
+
   } else {
     self.returnKeyType = UIReturnKeySearch;
     self.enablesReturnKeyAutomatically = YES;
@@ -436,6 +442,7 @@ static const CGFloat kDesiredTableHeight = 150;
     }
 
     [_tableView deselectRowAtIndexPath:_tableView.indexPathForSelectedRow animated:NO];
+
   } else {
     [_tableView removeFromSuperview];
     [_shadowView removeFromSuperview];
@@ -448,6 +455,7 @@ static const CGFloat kDesiredTableHeight = 150;
   UIScrollView* scrollView = (UIScrollView*)[self ancestorOrSelfWithClass:[UIScrollView class]];
   if (scrollView) {
     return scrollView;
+
   } else {
     for (UIView* view = self.superview; view; view = view.superview) {
       if (view.height > kDesiredTableHeight) {
@@ -464,7 +472,7 @@ static const CGFloat kDesiredTableHeight = 150;
 - (CGRect)rectForSearchResults:(BOOL)withKeyboard {
   UIView* superview = self.superviewForSearchResults;
 
-  CGFloat y = 0;
+  CGFloat y = 0.0f;
   UIView* view = self;
   while (view != superview) {
     y += view.top;
@@ -473,7 +481,7 @@ static const CGFloat kDesiredTableHeight = 150;
 
   CGFloat height = self.height;
   CGFloat keyboardHeight = withKeyboard ? TTKeyboardHeight() : 0;
-  CGFloat tableHeight = self.window.height - (self.ttScreenY + height + keyboardHeight);
+  CGFloat tableHeight = self.window.height - (self.screenViewY + height + keyboardHeight);
 
   return CGRectMake(0, y + self.height-1, superview.frame.size.width, tableHeight+1);
 }

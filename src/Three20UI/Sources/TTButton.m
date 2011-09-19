@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static const CGFloat kHPadding = 8;
-static const CGFloat kVPadding = 7;
+static const CGFloat kHPadding = 8.0f;
+static const CGFloat kVPadding = 7.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,8 @@ static const CGFloat kVPadding = 7;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
+	self = [super initWithFrame:frame];
+  if (self) {
     self.backgroundColor = [UIColor clearColor];
     self.contentMode = UIViewContentModeRedraw;
   }
@@ -106,10 +107,13 @@ static const CGFloat kVPadding = 7;
   static NSString* disabled = @"disabled";
   if (state & UIControlStateHighlighted) {
     return highlighted;
+
   } else if (state & UIControlStateSelected) {
     return selected;
+
   } else if (state & UIControlStateDisabled) {
     return disabled;
+
   } else {
     return normalKey;
   }
@@ -138,8 +142,10 @@ static const CGFloat kVPadding = 7;
   TTButtonContent* content = nil;
   if (self.selected) {
     content = [self contentForState:UIControlStateSelected];
+
   } else if (self.highlighted) {
     content = [self contentForState:UIControlStateHighlighted];
+
   } else if (!self.enabled) {
     content = [self contentForState:UIControlStateDisabled];
   }
@@ -173,11 +179,13 @@ static const CGFloat kVPadding = 7;
 - (UIFont*)fontForCurrentState {
   if (_font) {
     return _font;
+
   } else {
     TTStyle* style = [self styleForCurrentState];
     TTTextStyle* textStyle = (TTTextStyle*)[style firstStyleOfClass:[TTTextStyle class]];
     if (textStyle.font) {
       return textStyle.font;
+
     } else {
       return self.font;
     }
@@ -210,6 +218,7 @@ static const CGFloat kVPadding = 7;
         CGFloat height = imageSize.height + imageBoxStyle.margin.top + imageBoxStyle.margin.bottom;
         textFrame.origin.y += height;
         textFrame.size.height -= height;
+
       } else {
         textFrame.origin.x += imageSize.width + imageBoxStyle.margin.right;
         textFrame.size.width -= imageSize.width + imageBoxStyle.margin.right;
@@ -229,6 +238,7 @@ static const CGFloat kVPadding = 7;
         frame = self.bounds;
         frame.origin.x += imageBoxStyle.margin.left;
         frame.origin.y += imageBoxStyle.margin.top;
+
       } else {
         frame.size = imageSize;
         frame.origin.x += imageBoxStyle.margin.left;
@@ -254,6 +264,7 @@ static const CGFloat kVPadding = 7;
   TTStyle* style = [self styleForCurrentState];
   if (style) {
     return [style addToSize:CGSizeZero context:context];
+
   } else {
     return size;
   }
@@ -432,6 +443,7 @@ static const CGFloat kVPadding = 7;
   TTButtonContent* content = [self contentForCurrentState];
   if (suspended) {
     [content stopLoading];
+
   } else if (!content.image) {
     [content reload];
   }
@@ -456,6 +468,7 @@ static const CGFloat kVPadding = 7;
         frame = self.bounds;
         frame.origin.x += imageBoxStyle.margin.left;
         frame.origin.y += imageBoxStyle.margin.top;
+
       } else {
         frame.size = imageSize;
         frame.origin.x += imageBoxStyle.margin.left;

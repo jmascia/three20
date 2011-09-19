@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,6 +39,9 @@ TTCSSParser* gActiveParser = nil;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 @interface TTCSSParser()
 
+/**
+ *
+ */
 - (void)consumeToken:(int)token text:(char*)text;
 
 @end
@@ -61,7 +64,8 @@ int cssConsume(char* text, int token) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _ruleSets           = [[NSMutableDictionary alloc] init];
     _activeCssSelectors = [[NSMutableArray alloc] init];
   }
@@ -84,8 +88,8 @@ int cssConsume(char* text, int token) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)consumeToken:(int)token text:(char*)text {
-  NSString* string = [[NSString stringWithCString: text
-                                         encoding: NSUTF8StringEncoding] lowercaseString];
+  NSString* string = [NSString stringWithCString: text
+                                         encoding: NSUTF8StringEncoding];
   switch (token) {
     case CSSHASH:
     case CSSIDENT: {

@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithItem:(TTTabItem*)tabItem tabBar:(TTTabBar*)tabBar {
-  if (self = [self init]) {
+	self = [self init];
+  if (self) {
     self.tabItem = tabItem;
   }
 
@@ -72,6 +73,7 @@
     }
     if (_tabItem.badgeNumber <= kMaxBadgeNumber) {
       _badge.text = [NSString stringWithFormat:@"%d", _tabItem.badgeNumber];
+
     } else {
       _badge.text = [NSString stringWithFormat:@"%d+", kMaxBadgeNumber];
     }
@@ -79,6 +81,7 @@
 
     _badge.frame = CGRectMake(self.width - _badge.width-1, 1, _badge.width, _badge.height);
     _badge.hidden = NO;
+
   } else {
     _badge.hidden = YES;
   }

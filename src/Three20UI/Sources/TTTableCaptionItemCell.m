@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
 #import "Three20Style/TTGlobalStyle.h"
 #import "Three20Style/TTDefaultStyleSheet.h"
 
-static const CGFloat kKeySpacing = 12;
-static const CGFloat kKeyWidth = 75;
+static const CGFloat kKeySpacing = 12.0f;
+static const CGFloat kKeyWidth = 75.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,10 +38,12 @@ static const CGFloat kKeyWidth = 75;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString*)identifier {
-  if (self = [super initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:identifier]) {
+	self = [super initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:identifier];
+  if (self) {
     self.textLabel.font = TTSTYLEVAR(tableTitleFont);
     self.textLabel.textColor = TTSTYLEVAR(linkTextColor);
     self.textLabel.highlightedTextColor = TTSTYLEVAR(highlightedTextColor);
+	self.textLabel.backgroundColor = TTSTYLEVAR(backgroundTextColor);
     self.textLabel.textAlignment = UITextAlignmentRight;
     self.textLabel.lineBreakMode = UILineBreakModeTailTruncation;
     self.textLabel.numberOfLines = 1;
@@ -50,6 +52,7 @@ static const CGFloat kKeyWidth = 75;
     self.detailTextLabel.font = TTSTYLEVAR(tableSmallFont);
     self.detailTextLabel.textColor = TTSTYLEVAR(textColor);
     self.detailTextLabel.highlightedTextColor = TTSTYLEVAR(highlightedTextColor);
+	self.detailTextLabel.backgroundColor = TTSTYLEVAR(backgroundTextColor);
     self.detailTextLabel.adjustsFontSizeToFitWidth = YES;
     self.detailTextLabel.minimumFontSize = 8;
     self.detailTextLabel.lineBreakMode = UILineBreakModeWordWrap;
@@ -77,7 +80,11 @@ static const CGFloat kKeyWidth = 75;
                                 constrainedToSize:CGSizeMake(width, CGFLOAT_MAX)
                                     lineBreakMode:UILineBreakModeWordWrap];
 
-  return detailTextSize.height + kTableCellVPadding*2;
+  CGSize captionTextSize = [item.caption sizeWithFont:TTSTYLEVAR(tableTitleFont)
+                                constrainedToSize:CGSizeMake(kKeyWidth, CGFLOAT_MAX)
+                                    lineBreakMode:UILineBreakModeTailTruncation];
+
+  return MAX(detailTextSize.height, captionTextSize.height) + kTableCellVPadding*2;
 }
 
 

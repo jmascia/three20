@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
-static const CGFloat kKeySpacing = 12;
-static const CGFloat kDefaultImageSize = 50;
+static const CGFloat kKeySpacing = 12.0f;
+static const CGFloat kDefaultImageSize = 50.0f;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,8 @@ static const CGFloat kDefaultImageSize = 50;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString*)identifier {
-  if (self = [super initWithStyle:style reuseIdentifier:identifier]) {
+	self = [super initWithStyle:style reuseIdentifier:identifier];
+  if (self) {
     _imageView2 = [[TTImageView alloc] init];
     [self.contentView addSubview:_imageView2];
   }
@@ -61,6 +62,23 @@ static const CGFloat kDefaultImageSize = 50;
   TT_RELEASE_SAFELY(_imageView2);
 
   [super dealloc];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Private helpers
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
++ (UIFont*)fontForImageItem:(id)imageItem {
+  if ([imageItem isKindOfClass:[TTTableRightImageItem class]]) {
+    return TTSTYLEVAR(tableSmallFont);
+
+  } else {
+    return TTSTYLEVAR(tableFont);
+  }
 }
 
 
@@ -85,6 +103,7 @@ static const CGFloat kDefaultImageSize = 50;
   if (style && !CGSizeEqualToSize(style.size, CGSizeZero)) {
     imageWidth = style.size.width + kKeySpacing;
     imageHeight = style.size.height;
+
   } else {
     imageWidth = image
     ? image.size.width + kKeySpacing
@@ -96,7 +115,7 @@ static const CGFloat kDefaultImageSize = 50;
 
   CGFloat maxWidth = tableView.width - (imageWidth + kTableCellHPadding*2 + kTableCellMargin*2);
 
-  CGSize textSize = [imageItem.text sizeWithFont:TTSTYLEVAR(tableSmallFont)
+  CGSize textSize = [imageItem.text sizeWithFont:[self fontForImageItem:imageItem]
                                constrainedToSize:CGSizeMake(maxWidth, CGFLOAT_MAX)
                                    lineBreakMode:UILineBreakModeTailTruncation];
 
@@ -129,22 +148,25 @@ static const CGFloat kDefaultImageSize = 50;
     ? image.size.height
     : (item.imageURL ? kDefaultImageSize : 0);
 
-    if (_imageView2.urlPath) {
-      CGFloat innerWidth = self.contentView.width - (kTableCellHPadding*2 + imageWidth + kKeySpacing);
+    if (_imageView2.urlPath || image) {
+      CGFloat innerWidth = self.contentView.width - (kTableCellHPadding*2
+                                                     + imageWidth + kKeySpacing);
       CGFloat innerHeight = self.contentView.height - kTableCellVPadding*2;
-      self.textLabel.frame = CGRectMake(kTableCellHPadding, kTableCellVPadding, innerWidth, innerHeight);
+      self.textLabel.frame = CGRectMake(kTableCellHPadding, kTableCellVPadding,
+                                        innerWidth, innerHeight);
 
       _imageView2.frame = CGRectMake(self.textLabel.right + kKeySpacing,
                                      floor(self.height/2 - imageHeight/2),
                                      imageWidth, imageHeight);
 
     } else {
-      self.textLabel.frame = CGRectInset(self.contentView.bounds, kTableCellHPadding, kTableCellVPadding);
+      self.textLabel.frame = CGRectInset(self.contentView.bounds,
+                                         kTableCellHPadding, kTableCellVPadding);
       _imageView2.frame = CGRectZero;
     }
 
   } else {
-    if (_imageView2.urlPath) {
+    if (_imageView2.urlPath || image) {
       CGFloat iconWidth = image
       ? image.size.width
       : (item.imageURL ? kDefaultImageSize : 0);
@@ -168,12 +190,16 @@ static const CGFloat kDefaultImageSize = 50;
       _imageView2.frame = CGRectMake(kTableCellHPadding, floor(self.height/2 - iconHeight/2),
                                      iconWidth, iconHeight);
 
-      CGFloat innerWidth = self.contentView.width - (kTableCellHPadding*2 + iconWidth + kKeySpacing);
+      CGFloat innerWidth = self.contentView.width - (kTableCellHPadding*2
+                                                     + iconWidth + kKeySpacing);
       CGFloat innerHeight = self.contentView.height - kTableCellVPadding*2;
-      self.textLabel.frame = CGRectMake(kTableCellHPadding + iconWidth + kKeySpacing, kTableCellVPadding,
+      self.textLabel.frame = CGRectMake(kTableCellHPadding + iconWidth + kKeySpacing,
+                                        kTableCellVPadding,
                                         innerWidth, innerHeight);
+
     } else {
-      self.textLabel.frame = CGRectInset(self.contentView.bounds, kTableCellHPadding, kTableCellVPadding);
+      self.textLabel.frame = CGRectInset(self.contentView.bounds,
+                                         kTableCellHPadding, kTableCellVPadding);
       _imageView2.frame = CGRectZero;
     }
   }
@@ -206,12 +232,13 @@ static const CGFloat kDefaultImageSize = 50;
     _imageView2.defaultImage = item.defaultImage;
     _imageView2.urlPath = item.imageURL;
 
+    self.textLabel.font = [[self class] fontForImageItem:item];
+
     if ([_item isKindOfClass:[TTTableRightImageItem class]]) {
-      self.textLabel.font = TTSTYLEVAR(tableSmallFont);
       self.textLabel.textAlignment = UITextAlignmentCenter;
       self.accessoryType = UITableViewCellAccessoryNone;
+
     } else {
-      self.textLabel.font = TTSTYLEVAR(tableFont);
       self.textLabel.textAlignment = UITextAlignmentLeft;
     }
   }

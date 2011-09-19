@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,10 +48,25 @@ BOOL TTIsPad();
 UIDeviceOrientation TTDeviceOrientation();
 
 /**
+ * @return TRUE if the current device orientation is portrait or portrait upside down.
+ */
+BOOL TTDeviceOrientationIsPortrait();
+
+/**
+ * @return TRUE if the current device orientation is landscape left, or landscape right.
+ */
+BOOL TTDeviceOrientationIsLandscape();
+
+/**
+ * @return device full model name in human readable strings
+ */
+NSString* TTDeviceModelName();
+
+/**
  * On iPhone/iPod touch
  * Checks if the orientation is portrait, landscape left, or landscape right.
  * This helps to ignore upside down and flat orientations.
- * 
+ *
  * On iPad:
  * Always returns Yes.
  */
@@ -81,6 +96,11 @@ CGFloat TTToolbarHeightForOrientation(UIInterfaceOrientation orientation);
  * @return the height of the keyboard for a given orientation.
  */
 CGFloat TTKeyboardHeightForOrientation(UIInterfaceOrientation orientation);
+
+/**
+ * @return the space between the edge of the screen and a grouped table cell. Larger on iPad.
+ */
+CGFloat TTGroupedTableCellInset();
 
 /**
  * A convenient way to show a UIAlertView with a message.
@@ -163,8 +183,10 @@ extern const CGFloat ttkGroupedTableCellInset;
 #define TT_TOOLBAR_HEIGHT             ttkDefaultPortraitToolbarHeight
 #define TT_LANDSCAPE_TOOLBAR_HEIGHT   ttkDefaultLandscapeToolbarHeight
 
-#define TT_KEYBOARD_HEIGHT            ttkDefaultPortraitKeyboardHeight
-#define TT_LANDSCAPE_KEYBOARD_HEIGHT  ttkDefaultLandscapeKeyboardHeight
+#define TT_KEYBOARD_HEIGHT                 ttkDefaultPortraitKeyboardHeight
+#define TT_LANDSCAPE_KEYBOARD_HEIGHT       ttkDefaultLandscapeKeyboardHeight
+#define TT_IPAD_KEYBOARD_HEIGHT            ttkDefaultPadPortraitKeyboardHeight
+#define TT_IPAD_LANDSCAPE_KEYBOARD_HEIGHT  ttkDefaultPadLandscapeKeyboardHeight
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Animation

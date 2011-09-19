@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #import "Three20Style/UIFontAdditions.h"
 
 // Core
+#import "Three20Core/NSStringAdditions.h"
 #import "Three20Core/TTCorePreprocessorMacros.h"
 
 
@@ -43,7 +44,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNext:(TTStyle*)next {
-  if (self = [super initWithNext:next]) {
+	self = [super initWithNext:next];
+  if (self) {
     _shadowOffset = CGSizeZero;
     _numberOfLines = 1;
     _textAlignment = UITextAlignmentCenter;
@@ -189,6 +191,7 @@
   if (_textAlignment == UITextAlignmentLeft
       && _verticalAlignment == UIControlContentVerticalAlignmentTop) {
     rect.size = size;
+
   } else {
     CGSize textSize = [self sizeOfText:text withFont:font size:size];
 
@@ -200,12 +203,14 @@
 
     if (_textAlignment == UITextAlignmentCenter) {
       rect.origin.x = round(size.width/2 - textSize.width/2);
+
     } else if (_textAlignment == UITextAlignmentRight) {
       rect.origin.x = size.width - textSize.width;
     }
 
     if (_verticalAlignment == UIControlContentVerticalAlignmentCenter) {
       rect.origin.y = round(size.height/2 - textSize.height/2);
+
     } else if (_verticalAlignment == UIControlContentVerticalAlignmentBottom) {
       rect.origin.y = size.height - textSize.height;
     }
@@ -226,7 +231,16 @@
   }
 
   if (_shadowColor) {
-    CGSize offset = CGSizeMake(_shadowOffset.width, -_shadowOffset.height);
+    // Due to a bug in OS versions 3.2 and 4.0, the shadow appears upside-down. It pains me to
+    // write this, but a lot of research has failed to turn up a way to detect the flipped shadow
+    // programmatically
+    float shadowYOffset = -_shadowOffset.height;
+    NSString *osVersion = [UIDevice currentDevice].systemVersion;
+    if ([osVersion versionStringCompare:@"3.2"] != NSOrderedAscending) {
+      shadowYOffset = _shadowOffset.height;
+    }
+
+    CGSize offset = CGSizeMake(_shadowOffset.width, shadowYOffset);
     CGContextSetShadowWithColor(ctx, offset, 0, _shadowColor.CGColor);
   }
 
@@ -239,12 +253,14 @@
   if (_numberOfLines == 1) {
     CGRect titleRect = [self rectForText:text forSize:rect.size withFont:font];
     titleRect.size = [text drawAtPoint:
-                      CGPointMake(titleRect.origin.x+rect.origin.x, titleRect.origin.y+rect.origin.y)
+                      CGPointMake(titleRect.origin.x+rect.origin.x,
+                                  titleRect.origin.y+rect.origin.y)
                               forWidth:rect.size.width withFont:font
                            minFontSize:_minimumFontSize ? _minimumFontSize : font.pointSize
                         actualFontSize:nil lineBreakMode:_lineBreakMode
                     baselineAdjustment:UIBaselineAdjustmentAlignCenters];
     context.contentFrame = titleRect;
+
   } else {
     CGRect titleRect = [self rectForText:text forSize:rect.size withFont:font];
     titleRect = CGRectOffset(titleRect, rect.origin.x, rect.origin.y);
@@ -303,6 +319,7 @@
 
   if (_next) {
     return [self.next addToSize:size context:context];
+
   } else {
     return size;
   }

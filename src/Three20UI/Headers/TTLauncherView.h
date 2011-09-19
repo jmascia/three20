@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+
+// UI
+#import "Three20UI/TTLauncherPersistenceMode.h"
 
 @protocol TTLauncherViewDelegate;
 @class TTPageControl;
@@ -49,6 +52,10 @@
 
   BOOL _editing;
   BOOL _springing;
+  BOOL _editable;
+
+  NSString*                   _persistenceKey;
+  TTLauncherPersistenceMode   _persistenceMode;
 
   id<TTLauncherViewDelegate> _delegate;
 }
@@ -61,11 +68,28 @@
 
 @property (nonatomic, readonly) NSInteger rowCount;
 
+@property (nonatomic, readonly) TTPageControl* pager;
+
 @property (nonatomic) NSInteger currentPageIndex;
 
 @property (nonatomic, copy) NSString* prompt;
 
 @property (nonatomic, readonly) BOOL editing;
+@property (nonatomic, assign) BOOL editable;
+
+/**
+ * The key to use for storing persistence information.
+ *
+ * @default launcherViewPages
+ */
+@property (nonatomic, copy) NSString* persistenceKey;
+
+/**
+ * How buttons are automatically persisted on termination and restored on launch.
+ *
+ * @default TTLauncherPersistenceModeNone
+ */
+@property (nonatomic) TTLauncherPersistenceMode persistenceMode;
 
 - (void)addItem:(TTLauncherItem*)item animated:(BOOL)animated;
 
@@ -80,6 +104,21 @@
 - (void)beginEditing;
 
 - (void)endEditing;
+
+/**
+ * Persists all pages & buttons to user defaults.
+ */
+- (void)persistLauncherItems;
+
+/**
+ * Restores all pages & button from user defaults and returns if sucess
+ */
+- (BOOL)restoreLauncherItems;
+
+/**
+ * Erases all data stored in user defaults.
+ */
+- (void)resetDefaults;
 
 /**
  * Dims the launcher view except for a transparent circle around the given item. The given text

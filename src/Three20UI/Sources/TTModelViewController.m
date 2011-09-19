@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-  if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+	self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+  if (self) {
     _flags.isViewInvalid = YES;
   }
 
@@ -50,7 +51,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)init {
-  if (self = [self initWithNibName:nil bundle:nil]) {
+	self = [self initWithNibName:nil bundle:nil];
+  if (self) {
   }
 
   return self;
@@ -116,12 +118,14 @@
     if ([self canShowModel]) {
       showModel = !_flags.isShowingModel;
       _flags.isShowingModel = YES;
+
     } else {
       if (_flags.isShowingModel) {
         [self showModel:NO];
         _flags.isShowingModel = NO;
       }
     }
+
   } else {
     if (_flags.isShowingModel) {
       [self showModel:NO];
@@ -132,6 +136,7 @@
   if (_model.isLoading) {
     showLoading = !_flags.isShowingLoading;
     _flags.isShowingLoading = YES;
+
   } else {
     if (_flags.isShowingLoading) {
       [self showLoading:NO];
@@ -142,6 +147,7 @@
   if (_modelError) {
     showError = !_flags.isShowingError;
     _flags.isShowingError = YES;
+
   } else {
     if (_flags.isShowingError) {
       [self showError:NO];
@@ -152,6 +158,7 @@
   if (!_flags.isShowingLoading && !_flags.isShowingModel && !_flags.isShowingError) {
     showEmpty = !_flags.isShowingEmpty;
     _flags.isShowingEmpty = YES;
+
   } else {
     if (_flags.isShowingEmpty) {
       [self showEmpty:NO];
@@ -203,6 +210,7 @@
 - (void)didReceiveMemoryWarning {
   if (_hasViewAppeared && !_isViewAppearing) {
     [super didReceiveMemoryWarning];
+    [self resetViewStates];
     [self refresh];
 
   } else {
@@ -428,10 +436,13 @@
   BOOL loaded = self.model.isLoaded;
   if (!loading && !loaded && [self shouldLoad]) {
     [self.model load:TTURLRequestCachePolicyDefault more:NO];
+
   } else if (!loading && loaded && [self shouldReload]) {
     [self.model load:TTURLRequestCachePolicyNetwork more:NO];
+
   } else if (!loading && [self shouldLoadMore]) {
     [self.model load:TTURLRequestCachePolicyDefault more:YES];
+
   } else {
     _flags.isModelDidLoadInvalid = YES;
     if (_isViewAppearing) {

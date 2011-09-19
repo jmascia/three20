@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,8 +30,9 @@
 @synthesize image       = _image;
 @synthesize URL         = _URL;
 @synthesize style       = _style;
-@synthesize badgeNumber = _badgeNumber;
+@synthesize badgeValue  = _badgeValue;
 @synthesize canDelete   = _canDelete;
+@synthesize userInfo    = _userInfo;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +43,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithTitle:(NSString*)title image:(NSString*)image URL:(NSString*)URL {
-  if (self = [self initWithTitle:title image:image URL:URL canDelete:NO]) {
+	self = [self initWithTitle:title image:image URL:URL canDelete:NO];
+  if (self) {
   }
 
   return self;
@@ -52,7 +54,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithTitle:(NSString*)title image:(NSString*)image URL:(NSString*)URL
       canDelete:(BOOL)canDelete {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     _canDelete = canDelete;
 
     self.title = title;
@@ -70,6 +73,7 @@
   TT_RELEASE_SAFELY(_image);
   TT_RELEASE_SAFELY(_URL);
   TT_RELEASE_SAFELY(_style);
+  TT_RELEASE_SAFELY(_userInfo);
 
   [super dealloc];
 }
@@ -83,7 +87,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithCoder:(NSCoder*)decoder {
-  if (self = [super init]) {
+	self = [super init];
+  if (self) {
     self.title = [decoder decodeObjectForKey:@"title"];
     self.image = [decoder decodeObjectForKey:@"image"];
     self.URL = [decoder decodeObjectForKey:@"URL"];
@@ -112,11 +117,30 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSInteger)badgeNumber {
+  return [self.badgeValue integerValue];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setBadgeNumber:(NSInteger)badgeNumber {
-  _badgeNumber = badgeNumber;
+  if (badgeNumber == 0) {
+    [self setBadgeValue:nil];
+
+  } else {
+    [self setBadgeValue:[NSString stringWithFormat:@"%d",badgeNumber]];
+  }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)setBadgeValue:(NSString *)badgeValue {
+  if (_badgeValue != badgeValue) {
+    [_badgeValue release];
+    _badgeValue = [badgeValue copy];
+  }
 
   [_launcher performSelector:@selector(updateItemBadge:) withObject:self];
 }
-
 
 @end

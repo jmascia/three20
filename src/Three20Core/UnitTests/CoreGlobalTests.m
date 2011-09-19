@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
 // limitations under the License.
 //
 
-// See: http://developer.apple.com/iphone/library/documentation/Xcode/Conceptual/iphone_development/905-A-Unit-Test_Result_Macro_Reference/unit-test_results.html#//apple_ref/doc/uid/TP40007959-CH21-SW2
-// for unit test macros.
+// See: http://bit.ly/hS5nNh for unit test macros.
 
 #import <SenTestingKit/SenTestingKit.h>
 
 // Core
+#import "Three20Core/Three20.h"
+#import "Three20Core/Three20Version.h"
 #import "Three20Core/TTCorePreprocessorMacros.h"
 #import "Three20Core/TTGlobalCorePaths.h"
 #import "Three20Core/TTGlobalCore.h"
@@ -45,6 +46,27 @@
 - (void)testSuccess {
   // This is just a test to ensure that you're building the unit tests properly.
   STAssertTrue(YES, @"Something is terribly, terribly wrong.");
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Versioning
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)testThree20Versioning {
+  STAssertTrue([[Three20 version] isEqualToString:Three20Version],
+               @"The latest version has not been updated correctly.");
+  STAssertEquals([Three20 majorVersion], 1,
+                 @"The latest major version has not been updated correctly.");
+  STAssertEquals([Three20 minorVersion], 0,
+                 @"The latest minor version has not been updated correctly.");
+  STAssertEquals([Three20 bugfixVersion], 5,
+                 @"The latest bugfix version has not been updated correctly.");
+  STAssertEquals([Three20 hotfixVersion], 0,
+                 @"The latest hotfix version has not been updated correctly.");
 }
 
 

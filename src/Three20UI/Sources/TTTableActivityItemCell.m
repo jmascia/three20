@@ -1,5 +1,5 @@
 //
-// Copyright 2009-2010 Facebook
+// Copyright 2009-2011 Facebook
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString*)identifier {
-  if (self = [super initWithStyle:style reuseIdentifier:identifier]) {
+	self = [super initWithStyle:style reuseIdentifier:identifier];
+  if (self) {
     _activityLabel = [[TTActivityLabel alloc] initWithStyle:TTActivityLabelStyleGray];
     [self.contentView addSubview:_activityLabel];
 
@@ -49,7 +50,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   TT_RELEASE_SAFELY(_activityLabel);
-
+  TT_RELEASE_SAFELY(_item);
   [super dealloc];
 }
 
@@ -67,6 +68,7 @@
   UITableView* tableView = (UITableView*)self.superview;
   if (tableView.style == UITableViewStylePlain) {
     _activityLabel.frame = self.contentView.bounds;
+
   } else {
     _activityLabel.frame = CGRectInset(self.contentView.bounds, -1, -1);
   }
