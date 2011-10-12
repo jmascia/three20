@@ -27,13 +27,16 @@
 // UI
 #import "Three20UI/TTTableViewVarHeightDelegate.h"
 
+// Network
+#import "Three20Network/TTModelDelegate.h"
+
 @class TTTableHeaderDragRefreshView;
 @protocol TTModel;
 
 /**
  * Pulled from the uprise78/three20-P31 fork with consent of uprise78.
  */
-@interface TTTableViewDragRefreshDelegate : TTTableViewVarHeightDelegate {
+@interface TTTableViewDragRefreshDelegate : TTTableViewVarHeightDelegate <TTModelDelegate> {
   TTTableHeaderDragRefreshView* _headerView;
   id<TTModel>                   _model;
 }
