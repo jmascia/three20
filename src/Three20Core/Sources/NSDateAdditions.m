@@ -130,11 +130,20 @@ TT_FIX_CATEGORY_BUG(NSDateAdditions)
     }
     return [formatter stringFromDate:self];
 
-  } else {
+  } else if (diff < TT_YEAR) {
     static NSDateFormatter* formatter = nil;
     if (nil == formatter) {
       formatter = [[NSDateFormatter alloc] init];
       formatter.dateFormat = TTLocalizedString(@"MMM d h:mm a", @"Date format: Jul 27 1:05 pm");
+      formatter.locale = TTCurrentLocale();
+    }
+    return [formatter stringFromDate:self];
+
+  } else {
+    static NSDateFormatter* formatter = nil;
+    if (nil == formatter) {
+      formatter = [[NSDateFormatter alloc] init];
+      formatter.dateFormat = TTLocalizedString(@"MMM d, YYYY", @"Date format: Jul 27, 2011");
       formatter.locale = TTCurrentLocale();
     }
     return [formatter stringFromDate:self];
