@@ -39,6 +39,7 @@
 @interface TTTableViewDelegate : NSObject <UITableViewDelegate> {
   TTTableViewController*  _controller;
   NSMutableDictionary*    _headers;
+  NSMutableDictionary*    _footers;
 }
 
 - (id)initWithController:(TTTableViewController*)controller;

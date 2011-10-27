@@ -76,6 +76,7 @@ static const NSUInteger kFirstTableSection = 0;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   TT_RELEASE_SAFELY(_headers);
+  TT_RELEASE_SAFELY(_footers);
   [super dealloc];
 }
 
