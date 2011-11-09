@@ -165,6 +165,14 @@
 - (void)storeData:(NSData*)data forKey:(NSString*)key;
 
 /**
+ * JM: Same as default versions of these methods except if a file already exists for the
+ * key/URL, it doesn't update the timestamp. This is useful if you need to modify cached 
+ * data locally, but want to preserve the timestamp from it's network load.
+ */
+- (void)storeDataKeepTimestamp:(NSData *)data forURL:(NSString*)URL;
+- (void)storeDataKeepTimestamp:(NSData *)data forKey:(NSString *)key;
+
+/**
  * Stores an image in the memory cache.
  */
 - (void)storeImage:(UIImage*)image forURL:(NSString*)URL;

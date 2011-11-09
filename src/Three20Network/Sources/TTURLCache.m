@@ -518,6 +518,46 @@ static NSMutableDictionary* gNamedCaches = nil;
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)storeDataKeepTimestamp:(NSData *)data forURL:(NSString*)URL {
+  NSString* key = [self keyForURL:URL];
+  [self storeDataKeepTimestamp:data forKey:key];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)storeDataKeepTimestamp:(NSData *)data forKey:(NSString *)key {
+  // JM: This is useful if you make local changes to cached data but want to preserve timestamp
+  // from when data was loaded from network.
+  
+  if (!_disableDiskCache) {
+    // Get filepath and filemanager
+    NSString* filePath = [self cachePathForKey:key];
+		NSFileManager* fm = [NSFileManager defaultManager];
+
+    // Check if timestamp exists for this key
+    NSDate* lastModified = nil;
+		if ([fm fileExistsAtPath:filePath]) {
+			NSDictionary* attrs = [fm attributesOfItemAtPath:filePath error:nil];
+			lastModified = [attrs objectForKey:NSFileModificationDate];
+		}
+    
+    // Write data to disk
+    [fm createFileAtPath:filePath contents:data attributes:nil];
+    
+    // If data already existed for the key (i.e. we have a previous timestamp), then overwrite
+    // file's modified date.
+    if (filePath && [fm fileExistsAtPath:filePath] && lastModified) {
+      NSDictionary* attrs = [NSDictionary dictionaryWithObject:lastModified
+                                                        forKey:NSFileModificationDate];
+      
+#if __IPHONE_4_0 <= __IPHONE_OS_VERSION_MAX_ALLOWED
+      [fm setAttributes:attrs ofItemAtPath:filePath error:nil];
+#else
+      [fm changeFileAttributes:attrs atPath:filePath];
+#endif
+    }
+  }  
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)storeImage:(UIImage*)image forURL:(NSString*)URL {
