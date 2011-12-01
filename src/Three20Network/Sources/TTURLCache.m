@@ -664,16 +664,18 @@ static NSMutableDictionary* gNamedCaches = nil;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)removeURL:(NSString*)URL fromDisk:(BOOL)fromDisk {
-  [_imageSortedList removeObject:URL];
-  [_imageCache removeObjectForKey:URL];
-	[_imageModifiedCache removeObjectForKey:URL];
-
-  if (fromDisk) {
-    NSString* key = [self keyForURL:URL];
-    NSString* filePath = [self cachePathForKey:key];
-    NSFileManager* fm = [NSFileManager defaultManager];
-    if (filePath && [fm fileExistsAtPath:filePath]) {
-      [fm removeItemAtPath:filePath error:nil];
+  if (URL) {
+    [_imageSortedList removeObject:URL];
+    [_imageCache removeObjectForKey:URL];
+    [_imageModifiedCache removeObjectForKey:URL];
+    
+    if (fromDisk) {
+      NSString* key = [self keyForURL:URL];
+      NSString* filePath = [self cachePathForKey:key];
+      NSFileManager* fm = [NSFileManager defaultManager];
+      if (filePath && [fm fileExistsAtPath:filePath]) {
+        [fm removeItemAtPath:filePath error:nil];
+      }
     }
   }
 }
