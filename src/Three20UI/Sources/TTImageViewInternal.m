@@ -37,14 +37,23 @@ TT_FIX_CATEGORY_BUG(TTImageViewInternal)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)updateLayer {
+
   TTImageLayer* layer = (TTImageLayer*)self.layer;
   if (self.style) {
+    layer.override = nil;
+
+  } else if (self.image == nil) {
+    // JM: In the case where no style is set and the imageView does not have and image, if the
+    // layer override is self, then sometimes the imageView's background is forcibly
+    // changed to white (even if we set the background to something else). So if we don't have an
+    // image, we're setting the override to nil.
     layer.override = nil;
 
   } else {
     // This is dramatically faster than calling drawRect.  Since we don't have any styles
     // to draw in this case, we can take this shortcut.
     layer.override = self;
+
   }
   [layer setNeedsDisplay];
 }
