@@ -102,10 +102,20 @@
 	CGPoint keyboardEnd;
 	[[notification.userInfo objectForKey:UIKeyboardCenterEndUserInfoKey] getValue:&keyboardEnd];
 
+  // JM: Get actual keyboard animation constants
+  NSNumber* keyboardCurve =
+  [notification.userInfo objectForKey:UIKeyboardAnimationCurveUserInfoKey];
+
+  NSNumber* keyboardDuration =
+  [notification.userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey];
+
 	BOOL animated = keyboardStart.y != keyboardEnd.y;
   if (animated) {
     [UIView beginAnimations:nil context:nil];
-    [UIView setAnimationDuration:TT_TRANSITION_DURATION];
+    // Use actual keyboard animation constants instead of using hardcoded values, because they
+    // change on different version of iOS.
+    [UIView setAnimationDuration:[keyboardDuration doubleValue]];
+    [UIView setAnimationCurve:[keyboardCurve integerValue]];
   }
 
   if (appearing) {
