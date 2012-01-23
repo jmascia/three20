@@ -535,4 +535,51 @@ static const CGFloat kCancelHighlightThreshold = 4.0f;
 }
 
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ * JM: Overriding default setter funtionality. If a frame's style (TTTextStyle)
+ * specifies a color, then the highlightedTextColor property of TTStyledTextLabel
+ * is ignored when the highlighted state is set for the label. Also, even if a
+ * frame's style selector handles state, the style is not updated when highlighted
+ * is set for label. This fixes behavior so that each frame is updated with
+ * respective style's highlighted state when label enters highlighted state.
+ */
+- (void)setHighlighted:(BOOL)highlighted {
+  if (_highlighted != highlighted) {
+    _highlighted = highlighted;
+
+    TTStyledFrame* frame = _text.rootFrame;
+    while (frame) {
+
+      if ([frame isKindOfClass:[TTStyledBoxFrame class]]) {
+        NSString* className = frame.element.className;
+
+        TTStyle* style = nil;
+        if (className && [className rangeOfString:@":"].location != NSNotFound) {
+          if (_highlighted) {
+            style = [TTSTYLESHEET styleWithSelector:className
+                                           forState:UIControlStateHighlighted];
+
+          } else {
+            style = [TTSTYLESHEET styleWithSelector:className
+                                           forState:UIControlStateNormal];
+
+          }
+
+        }
+
+        if (style) {
+          [self setStyle:style forFrame:(TTStyledBoxFrame*)frame];
+        }
+      }
+
+      frame = frame.nextFrame;
+    }
+
+    [self setNeedsDisplay];
+  }
+}
+
+
 @end
