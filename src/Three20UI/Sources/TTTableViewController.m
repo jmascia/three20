@@ -156,7 +156,6 @@
   [_tableOverlayView addSubview:view];
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)resetOverlayView {
   if (_tableOverlayView && !_tableOverlayView.subviews.count) {
