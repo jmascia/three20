@@ -95,7 +95,15 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setObject:(id)object {
   if (object != _view && object != _item) {
-    [_view removeFromSuperview];
+
+    // JM: Fixed bug when there are multiple TTTableFlushViewCells in a table and object gets
+    // set to a new cell, but is still the _view in it's previous cell - when the previous
+    // cell gets a new object, it should only remove it's _view from it's superview if it's
+    // actually a subview of this cell (otherwise is can get removed from it's current superview).
+    if ([_view isDescendantOfView:self.contentView]) {
+      [_view removeFromSuperview];
+    }
+
     TT_RELEASE_SAFELY(_view);
     TT_RELEASE_SAFELY(_item);
 
