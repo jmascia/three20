@@ -501,7 +501,7 @@ static TTURLRequestQueue* gMainQueue = nil;
   
   NSTimeInterval usedTimeout = request.timeoutInterval;
   
-  if (usedTimeout < 0.0) {
+  if (usedTimeout < 0.0 || request == nil) {
     usedTimeout = self.defaultTimeout;
   }
   

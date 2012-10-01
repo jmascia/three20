@@ -29,7 +29,7 @@
 #import "Three20Core/NSStringAdditions.h"
 
 static NSString* kStringBoundary = @"3i2ndDfv2rTHiSisAbouNdArYfORhtTPEefj3q2f";
-const NSTimeInterval TTURLRequestUseDefaultTimeout = -1.0;
+const NSTimeInterval TTURLRequestUseQueueTimeout = -1.0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ const NSTimeInterval TTURLRequestUseDefaultTimeout = -1.0;
     _shouldHandleCookies = YES;
     _charsetForMultipart = NSUTF8StringEncoding;
     _multiPartForm = YES;
-    _timeoutInterval = TTURLRequestUseDefaultTimeout;
+    _timeoutInterval = TTURLRequestUseQueueTimeout;
   }
   return self;
 }
@@ -190,9 +190,7 @@ const NSTimeInterval TTURLRequestUseDefaultTimeout = -1.0;
   [body appendData:[[NSString
                       stringWithFormat:@"Content-Length: %d\r\n", data.length]
                      dataUsingEncoding:_charsetForMultipart]];
-  [body appendData:[[NSString
-                      stringWithString:@"Content-Type: image/jpeg\r\n\r\n"]
-                     dataUsingEncoding:_charsetForMultipart]];
+  [body appendData:[@"Content-Type: image/jpeg\r\n\r\n" dataUsingEncoding:_charsetForMultipart]];
   [body appendData:data];
 		[body appendData:[endLine dataUsingEncoding:NSUTF8StringEncoding]];
 }
@@ -313,7 +311,7 @@ const NSTimeInterval TTURLRequestUseDefaultTimeout = -1.0;
     if (_multiPartForm) {
       return [NSString stringWithFormat:@"multipart/form-data; boundary=%@", kStringBoundary];      
     } else {
-      return [NSString stringWithFormat:@"application/x-www-form-urlencoded", kStringBoundary];            
+      return @"application/x-www-form-urlencoded";            
     }
     
   } else {
