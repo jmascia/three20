@@ -44,10 +44,23 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark TTURLResponse
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSError*)request:(TTURLRequest*)request
+    processResponse:(NSHTTPURLResponse*)response
+               data:(id)data
+{
+  return [self request:request processResponse:response data:data timestamp:nil];
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark Public
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (NSError*)request:(TTURLRequest*)request processResponse:(NSHTTPURLResponse*)response
-            data:(id)data {
+- (NSError*)request:(TTURLRequest*)request
+    processResponse:(NSHTTPURLResponse*)response
+               data:(id)data
+          timestamp:(NSDate*)timestamp
+{
   // This response is designed for NSData and UIImage objects, so if we get anything else it's
   // probably a mistake.
   TTDASSERT([data isKindOfClass:[UIImage class]]
@@ -77,7 +90,12 @@
 //          NSData* data = UIImagePNGRepresentation(image);
 //          [[TTURLCache sharedCache] storeData:data forURL:request.URL];
 //        }
-        [[TTURLCache sharedCache] storeImage:image forURL:request.urlPath];
+        
+        // JM: If we get passed a timestamp for the response then send it along to the cache
+        // so the timestamp is recorded with the in-memory image cache (most likely this is
+        // because the image was retrieved from the disk cache, but it's not in memory cache
+        // so it needs to be stored there).
+        [[TTURLCache sharedCache] storeImage:image forURL:request.urlPath timestamp:timestamp];
       }
 
       _image = [image retain];

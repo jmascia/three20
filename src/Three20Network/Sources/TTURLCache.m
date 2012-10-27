@@ -204,12 +204,11 @@ static NSMutableDictionary* gNamedCaches = nil;
   }
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (void)storeImage:(UIImage*)image forURL:(NSString*)URL force:(BOOL)force {
+- (void)storeImage:(UIImage*)image forURL:(NSString*)URL force:(BOOL)force timestamp:(NSDate*)timestamp {
   if (nil != image && (force || !_disableImageCache)) {
     int pixelCount = image.size.width * image.size.height;
-
+    
     if (force || pixelCount < kLargeImageSize) {
       UIImage* existingImage = [_imageCache objectForKey:URL];
       if (nil != existingImage) {
@@ -217,11 +216,11 @@ static NSMutableDictionary* gNamedCaches = nil;
         [_imageSortedList removeObject:URL];
       }
       _totalPixelCount += pixelCount;
-
+      
       if (_totalPixelCount > _maxPixelCount && _maxPixelCount) {
         [self expireImagesFromMemory];
       }
-
+      
       if (nil == _imageCache) {
         _imageCache = [[NSMutableDictionary alloc] init];
       }
@@ -229,18 +228,29 @@ static NSMutableDictionary* gNamedCaches = nil;
 			if (!_imageModifiedCache) {
 				_imageModifiedCache = [[NSMutableDictionary alloc] init];
 			}
-
+      
       if (nil == _imageSortedList) {
         _imageSortedList = [[NSMutableArray alloc] init];
       }
-
+      
       [_imageSortedList addObject:URL];
       [_imageCache setObject:image forKey:URL];
-			[_imageModifiedCache setObject:[NSDate date] forKey:URL];
+      
+      // JM: Modified this method to accept an explicit timestamp rather than assuming the image
+      // we are storing was downloaded at this time. E.g. The image was saved to the disk cache
+      // and now we are reloading it into memory cache, so we should preserve the disk's timestamp.
+      if (timestamp == nil) {
+        timestamp = [NSDate date];
+      }
+			[_imageModifiedCache setObject:timestamp forKey:URL];
     }
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)storeImage:(UIImage*)image forURL:(NSString*)URL force:(BOOL)force {
+  [self storeImage:image forURL:URL force:force timestamp:nil];
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /**
@@ -561,7 +571,18 @@ static NSMutableDictionary* gNamedCaches = nil;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)storeImage:(UIImage*)image forURL:(NSString*)URL {
-  [self storeImage:image forURL:URL force:NO];
+  [self storeImage:image forURL:URL timestamp:nil];
+}
+
+/**
+ * JM: Same as storeImage:forURL except I added optional timestamp in case we want to explicitly
+ * specify the age of the image (e.g. if it was read off the disk). If no timestamp supplied
+ * then current time will get used.
+ */
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)storeImage:(UIImage*)image forURL:(NSString*)URL timestamp:(NSDate *)timestamp {
+  [self storeImage:image forURL:URL force:NO timestamp:timestamp];
 }
 
 

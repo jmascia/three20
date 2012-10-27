@@ -30,4 +30,15 @@
 
 @property (nonatomic, readonly) UIImage* image;
 
+/**
+ * JM: Same as request:processResponse:data method from TTURLResponse protocol except I added 
+ * optional timestamp in case we want to explicitly specify the age of the data in response.
+ * In loadRequestFromCache: from TTURLRequestQueue, request.timestamp is not called until after
+ * this method is called, so it seemed cleaner to pass the timestamp in this way.
+ */
+- (NSError*)request:(TTURLRequest*)request
+    processResponse:(NSHTTPURLResponse*)response
+               data:(id)data
+          timestamp:(NSDate*)timestamp;
+
 @end

@@ -23,6 +23,7 @@
 #import "Three20Network/TTUserInfo.h"
 #import "Three20Network/TTURLResponse.h"
 #import "Three20Network/TTURLCache.h"
+#import "Three20Network/TTURLImageResponse.h"
 
 // Network (Private)
 #import "Three20Network/private/TTRequestLoader.h"
@@ -233,7 +234,16 @@ static TTURLRequestQueue* gMainQueue = nil;
       request.isLoading = NO;
 
       if (!error) {
-        error = [request.response request:request processResponse:nil data:data];
+        
+        // JM: If the response is an Image response, then pass along the timestamp for the cached data, so
+        // the correct timestamp gets preserved when the image is stored to the in-memory image cache.
+        // Previously the current time was being used, which may be much later than the actual time the image
+        // was originally written to disk.
+        if ([request.response isKindOfClass:[TTURLImageResponse class]]) {
+          error = [(TTURLImageResponse*)request.response request:request processResponse:nil data:data timestamp:timestamp];
+        } else {
+          error = [request.response request:request processResponse:nil data:data];
+        }
       }
 
       if (error) {

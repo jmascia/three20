@@ -178,6 +178,13 @@
 - (void)storeImage:(UIImage*)image forURL:(NSString*)URL;
 
 /**
+ * JM: Same as storeImage:forURL except I added optional timestamp in case we want to explicitly 
+ * specify the age of the image (e.g. if it was read off the disk). If no timestamp supplied
+ * then current time will get used.
+ */
+- (void)storeImage:(UIImage*)image forURL:(NSString*)URL timestamp:(NSDate*)timestamp;
+
+/**
  * Stores an etag value in the etag cache.
  */
 - (void)storeEtag:(NSString*)etag forKey:(NSString*)key;
