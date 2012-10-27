@@ -25,6 +25,7 @@
 #import "Three20Network/TTURLRequestDelegate.h"
 #import "Three20Network/TTURLRequestQueue.h"
 #import "Three20Network/TTURLResponse.h"
+#import "Three20Network/TTURLImageResponse.h"
 
 // Network (private)
 #import "Three20Network/private/TTURLRequestQueueInternal.h"
@@ -250,20 +251,39 @@ static const NSInteger kLoadMaxRetries = 2;
   }
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSError*)processResponse:(NSHTTPURLResponse*)response data:(id)data {
+  return [self processResponse:response data:data timestamp:nil];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (NSError*)processResponse:(NSHTTPURLResponse*)response data:(id)data timestamp:(NSDate*)timestamp {
   for (TTURLRequest* request in _requests) {
     NSError* error = nil;
     // We need to accept valid HTTP status codes, not only 200.
     if (!response || ![response respondsToSelector:@selector(statusCode)]
         || (response.statusCode >= 200 && response.statusCode < 300)
-        || response.statusCode == 304) {
-      error = [request.response request:request processResponse:response data:data];
-    } else {
-      if ([request.response respondsToSelector:@selector(request:processErrorResponse:data:)]) {
-        error = [request.response request:request processErrorResponse:response data:data];
+        || response.statusCode == 304)
+    {
+     
+      // JM: If the response is an Image response, then pass along the timestamp, so
+      // the correct timestamp gets preserved when the image is stored to the in-memory image cache.
+      if ([request.response isKindOfClass:[TTURLImageResponse class]]) {
+        error = [(TTURLImageResponse*)request.response request:request processResponse:response data:data timestamp:timestamp];
+      } else {
+        error = [request.response request:request processResponse:response data:data];
       }
+      
+    } else {
+      
+      // JM: If the response is an Image response, then pass along the timestamp, so
+      // the correct timestamp gets preserved when the image is stored to the in-memory image cache.
+      if ([request.response isKindOfClass:[TTURLImageResponse class]]) {
+        error = [(TTURLImageResponse*)request.response request:request processResponse:response data:data timestamp:timestamp];
+      } else if ([request.response respondsToSelector:@selector(request:processErrorResponse:data:)]) {
+        error = [request.response request:request processResponse:response data:data];
+      }
+      
       // Supply an NSError object if request.response's
       // request:processErrorResponse:data: does not return one.
       if (!error) {

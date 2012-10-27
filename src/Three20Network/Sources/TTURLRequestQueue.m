@@ -286,7 +286,9 @@ static TTURLRequestQueue* gMainQueue = nil;
     [_loaders removeObjectForKey:loader.cacheKey];
 
     if (!error) {
-      error = [loader processResponse:nil data:data];
+      // JM: Passing in timestamp so that if it's an image from disk cache, the correct timestamp
+      // gets stored in memory cache.
+      error = [loader processResponse:nil data:data timestamp:timestamp];
     }
     if (error) {
       [loader dispatchError:error];
@@ -662,7 +664,9 @@ static TTURLRequestQueue* gMainQueue = nil;
                      data:&data error:&error timestamp:&timestamp]) {
 
     if (nil == error) {
-      error = [loader processResponse:response data:data];
+      // JM: Passing in timestamp so that if it's an image from disk cache, the correct timestamp
+      // gets stored in memory cache.
+      error = [loader processResponse:response data:data timestamp:timestamp];
     }
 
     if (nil == error) {
