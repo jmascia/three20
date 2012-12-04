@@ -62,6 +62,7 @@
 @synthesize height        = _height;
 @synthesize invalidImages = _invalidImages;
 @synthesize delegate      = _delegate;
+@synthesize actualWidth   = _actualWidth;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -334,11 +335,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layoutFrames {
+
   TTStyledLayout* layout = [[TTStyledLayout alloc] initWithRootNode:_rootNode];
   layout.width = _width;
   layout.font = _font;
   layout.textAlignment = _textAlignment;
   [layout layout:_rootNode];
+
+  // JM: Save the width calculated by the Layout used for later reference.
+  _actualWidth = layout.actualWidth;
 
   [_rootFrame release];
   _rootFrame = [layout.rootFrame retain];

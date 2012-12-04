@@ -35,6 +35,9 @@
   NSMutableArray* _imageRequests;
 
   id<TTStyledTextDelegate> _delegate;
+
+  // JM: Use this to store calculated width actually used by text.
+  CGFloat _actualWidth;
 }
 
 @property (nonatomic, assign) id<TTStyledTextDelegate> delegate;
@@ -80,6 +83,11 @@
  * Images that require loading
  */
 @property (nonatomic, readonly) NSMutableArray* invalidImages;
+
+/**
+ * The width actually used by the text (the edge of the furthest right text node). Calculated
+ */
+@property (nonatomic, readonly) CGFloat actualWidth;
 
 /**
  * Constructs styled text with XHTML tags turned into style nodes.
@@ -142,5 +150,6 @@
 - (void)insertChild:(TTStyledNode*)child atIndex:(NSInteger)index;
 
 - (TTStyledNode*)getElementByClassName:(NSString*)className;
+
 
 @end

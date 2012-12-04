@@ -52,6 +52,9 @@
   TTStyledNode* _lastNode;
 
   NSMutableArray* _invalidImages;
+
+  // JM: Use this to store calculated width actually used by text.
+  CGFloat _actualWidth;
 }
 
 @property (nonatomic)           CGFloat         width;
@@ -60,6 +63,7 @@
 @property (nonatomic)           UITextAlignment textAlignment;
 @property (nonatomic, readonly) TTStyledFrame*  rootFrame;
 @property (nonatomic, retain)   NSMutableArray* invalidImages;
+@property (nonatomic, readonly) CGFloat actualWidth;
 
 - (id)initWithRootNode:(TTStyledNode*)rootNode;
 - (id)initWithX:(CGFloat)x width:(CGFloat)width height:(CGFloat)height;

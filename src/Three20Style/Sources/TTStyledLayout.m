@@ -53,6 +53,7 @@
 @synthesize font          = _font;
 @synthesize textAlignment = _textAlignment;
 @synthesize invalidImages = _invalidImages;
+@synthesize actualWidth   = _actualWidth;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,6 +241,12 @@
     _lastFrame.nextFrame = frame;
   }
   _lastFrame = frame;
+
+  // JM: Calculate the right edge of the frame, and update layout width if appropriate.
+  CGFloat right = frame.bounds.size.width + frame.bounds.origin.x;
+  if (right > _actualWidth) {
+    _actualWidth = right;
+  }
 }
 
 
@@ -877,6 +884,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)layout:(TTStyledNode*)node {
+  // JM: Reset stored width.
+  _actualWidth = 0;
+
   [self layout:node container:nil];
   if (_lineWidth) {
     [self breakLine];
