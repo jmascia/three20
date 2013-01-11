@@ -45,6 +45,9 @@ static const CGFloat kHeaderVisibleHeight = 60.0f;
 // The height of the infinite scroll footer view
 static const CGFloat kInfiniteScrollFooterHeight = 40.0f;
 
+// The height of the footer when we are not loading.
+static const CGFloat kNoFooterHeight = 1.0f;
+
 // The percentage of table scrolling to trigger infinite scroll agter
 static const CGFloat kInfiniteScrollThreshold = 0.5f;
 
@@ -105,7 +108,7 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
                       initWithFrame:CGRectMake(0,
                                                0,
                                                _controller.tableView.width,
-                                               kInfiniteScrollFooterHeight)];
+                                               kNoFooterHeight)];
       _footerView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
       _controller.tableView.tableFooterView = _footerView;
     }
@@ -169,7 +172,7 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
       scrollRatio = scrollView.contentOffset.y /
       (scrollView.contentSize.height - scrollView.height);
       scrollRatio = MAX(MIN(scrollRatio, 1),0);
-      
+
   } else {
       scrollRatio = 1.0;
     }
@@ -260,7 +263,7 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
     // JM: Set footer height to hide footer. Re-assign footerView so table recognizes new height.
     if ([_controller.tableView.tableFooterView isKindOfClass:[TTTableFooterInfiniteScrollView class]]) {
       TTTableFooterInfiniteScrollView* footerView = (TTTableFooterInfiniteScrollView*)_controller.tableView.tableFooterView;
-      footerView.height = 1.0;
+      footerView.height = kNoFooterHeight;
       [footerView setLoading:NO];
       _controller.tableView.tableFooterView = footerView;
     }
