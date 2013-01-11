@@ -16,6 +16,9 @@
 
 #import "Three20UI/TTTableViewVarHeightDelegate.h"
 
+// Network
+#import "Three20Network/TTModelDelegate.h"
+
 @class TTTableHeaderDragRefreshView, TTTableFooterInfiniteScrollView;
 @protocol TTModel, TTTableNetworkEnabledTableViewController;
 
@@ -35,6 +38,9 @@
 - (id)initWithController:(TTTableViewController*)controller
          withDragRefresh:(BOOL)enableDragRefresh
       withInfiniteScroll:(BOOL)enableInfiniteScroll;
+
+// JM: Added so we can reference constant elsewhere.
+- (CGFloat)headerVisibleHeight;
 
 @end
 

@@ -162,9 +162,18 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
   }
 
   if (_infiniteScrollEnabled && !_model.isLoading) {
-    CGFloat scrollRatio = scrollView.contentOffset.y /
-                          (scrollView.contentSize.height - scrollView.height);
-    scrollRatio = MAX(MIN(scrollRatio, 1),0);
+    CGFloat scrollRatio;
+
+    // JM: If loaded content does not utilize full tableHeight, then force scroll ratio of 1.
+    if (scrollView.contentSize.height > scrollView.height) {
+      scrollRatio = scrollView.contentOffset.y /
+      (scrollView.contentSize.height - scrollView.height);
+      scrollRatio = MAX(MIN(scrollRatio, 1),0);
+      
+  } else {
+      scrollRatio = 1.0;
+    }
+
     BOOL shouldLoad;
     if ([_controller respondsToSelector:@selector(shouldLoadAtScrollRatio:)]) {
       shouldLoad = [(id <TTTableNetworkEnabledTableViewController>)_controller
@@ -176,7 +185,15 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
 
     if (shouldLoad) {
       [_model load:TTURLRequestCachePolicyDefault more:YES];
-      [(TTTableFooterInfiniteScrollView*)_controller.tableView.tableFooterView setLoading:YES];
+
+      // JM: Set footer height to make sure loading indicator is visible.
+      // Re-assign footerView so table recognizes new height.
+      if ([_controller.tableView.tableFooterView isKindOfClass:[TTTableFooterInfiniteScrollView class]]) {
+        TTTableFooterInfiniteScrollView* footerView = (TTTableFooterInfiniteScrollView*)_controller.tableView.tableFooterView;
+        footerView.height = kInfiniteScrollFooterHeight;
+        [footerView setLoading:YES];
+        _controller.tableView.tableFooterView = footerView;
+      }
     }
   }
 }
@@ -239,7 +256,14 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
   }
 
   if (_infiniteScrollEnabled) {
-    [(TTTableFooterInfiniteScrollView*)_controller.tableView.tableFooterView setLoading:NO];
+
+    // JM: Set footer height to hide footer. Re-assign footerView so table recognizes new height.
+    if ([_controller.tableView.tableFooterView isKindOfClass:[TTTableFooterInfiniteScrollView class]]) {
+      TTTableFooterInfiniteScrollView* footerView = (TTTableFooterInfiniteScrollView*)_controller.tableView.tableFooterView;
+      footerView.height = 1.0;
+      [footerView setLoading:NO];
+      _controller.tableView.tableFooterView = footerView;
+    }
   }
 }
 
@@ -268,6 +292,18 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
     [UIView commitAnimations];
   }
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Public
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (CGFloat)headerVisibleHeight {
+  return kHeaderVisibleHeight;
+}
+
 
 
 @end

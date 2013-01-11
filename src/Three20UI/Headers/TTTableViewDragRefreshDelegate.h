@@ -43,4 +43,8 @@
 
 @property (nonatomic, retain) TTTableHeaderDragRefreshView* headerView;
 
+// JM: Added so we can reference constant elsewhere.
+- (CGFloat)headerVisibleHeight;
+
+
 @end

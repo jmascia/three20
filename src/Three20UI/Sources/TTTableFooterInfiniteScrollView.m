@@ -53,12 +53,15 @@
   return self;
 }
 
-
+// JM: Don't style footer at all when not loading (no background color or dot).
+/*
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)drawRect:(CGRect)rect{
   CGContextRef contextRef = UIGraphicsGetCurrentContext();
+
   CGContextSetRGBFillColor(contextRef, 1, 1, 1, 1);
   CGContextFillRect(contextRef, rect);
+
   if (!_loading) {
     CGFloat dotSize = 5.0f;
     CGFloat x = roundf((self.width / 2) - (dotSize / 2));
@@ -67,6 +70,7 @@
     CGContextFillEllipseInRect(contextRef, CGRectMake(x, y, dotSize, dotSize));
   }
 }
+ */
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
