@@ -169,11 +169,10 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
 
     // JM: If loaded content does not utilize full tableHeight, then force scroll ratio of 1.
     if (scrollView.contentSize.height > scrollView.height) {
-      scrollRatio = scrollView.contentOffset.y /
-      (scrollView.contentSize.height - scrollView.height);
+      scrollRatio = scrollView.contentOffset.y / (scrollView.contentSize.height - scrollView.height);
       scrollRatio = MAX(MIN(scrollRatio, 1),0);
 
-  } else {
+    } else {
       scrollRatio = 1.0;
     }
 
@@ -188,15 +187,13 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
 
     if (shouldLoad) {
       [_model load:TTURLRequestCachePolicyDefault more:YES];
-
+      
       // JM: Set footer height to make sure loading indicator is visible.
       // Re-assign footerView so table recognizes new height.
-      if ([_controller.tableView.tableFooterView isKindOfClass:[TTTableFooterInfiniteScrollView class]]) {
-        TTTableFooterInfiniteScrollView* footerView = (TTTableFooterInfiniteScrollView*)_controller.tableView.tableFooterView;
-        footerView.height = kInfiniteScrollFooterHeight;
-        [footerView setLoading:YES];
-        _controller.tableView.tableFooterView = footerView;
-      }
+      TTTableFooterInfiniteScrollView* footerView = _footerView;
+      footerView.height = kInfiniteScrollFooterHeight;
+      [footerView setLoading:YES];
+      _controller.tableView.tableFooterView = footerView;
     }
   }
 }
@@ -257,16 +254,14 @@ static const CGFloat kInfiniteScrollThreshold = 0.5f;
       [_headerView setCurrentDate];
     }
   }
-
+  
   if (_infiniteScrollEnabled) {
-
+    
     // JM: Set footer height to hide footer. Re-assign footerView so table recognizes new height.
-    if ([_controller.tableView.tableFooterView isKindOfClass:[TTTableFooterInfiniteScrollView class]]) {
-      TTTableFooterInfiniteScrollView* footerView = (TTTableFooterInfiniteScrollView*)_controller.tableView.tableFooterView;
-      footerView.height = kNoFooterHeight;
-      [footerView setLoading:NO];
-      _controller.tableView.tableFooterView = footerView;
-    }
+    TTTableFooterInfiniteScrollView* footerView = _footerView;
+    footerView.height = kNoFooterHeight;
+    [footerView setLoading:NO];
+    _controller.tableView.tableFooterView = footerView;
   }
 }
 
