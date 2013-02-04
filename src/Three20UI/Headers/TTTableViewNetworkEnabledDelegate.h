@@ -42,9 +42,21 @@
 // JM: Added so we can reference constant elsewhere.
 - (CGFloat)headerVisibleHeight;
 
+// JM: Attempts to load More content if several required conditions are met.
+// Added this as a medthod so we can execute this code from multiple places.
+- (BOOL)tryLoadingMoreIfNeeded:(UIScrollView*)scrollView;
+
 @end
 
 @protocol TTTableNetworkEnabledTableViewController <NSObject>
 @optional
 - (BOOL)shouldLoadAtScrollRatio:(CGFloat)scrollRatio;
+
+// JM: Added this method to the protocol because it performs better than
+// triggering loading based on scrollRatio. If we have a very tall contentArea
+// (relative to the table height) and we are scrolled well past the scrollRatio
+// threshold, then may need to make many loads to achieve the desired ratio.
+// By triggering off the remaining scroll area, the performance is the same
+// regardless of total content size.
+- (BOOL)shouldLoadAtScrollRemaining:(CGFloat)scrollRemaining;
 @end
