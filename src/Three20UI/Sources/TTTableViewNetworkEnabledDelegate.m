@@ -168,8 +168,12 @@ static const CGFloat kInfiniteScrollRemainingMultiplier = 2.0f;
     }
   }
 
-  // JM: Try loading more if required conditions are met.
-  [self tryLoadingMoreIfNeeded:scrollView];
+  // JM: Try loading more if required conditions are met. Don't try if we are we have a negative
+  // offset. This is to prevent the model from loading again after a drag-refresh load as the
+  // table's inset is animated.
+  if (scrollView.contentOffset.y > 0.0) {
+    [self tryLoadingMoreIfNeeded:scrollView];
+  }
 }
 
 
@@ -233,7 +237,7 @@ static const CGFloat kInfiniteScrollRemainingMultiplier = 2.0f;
   // after loading, it's possible that we haven't accumulated enough remaining height and we
   // need to load More again. This behavior is particularly needed for a KLMultiModelModel with
   // multiple More submodels to work correctly.
-  if (![self tryLoadingMoreIfNeeded:_controller.tableView]) {
+  //if (![self tryLoadingMoreIfNeeded:_controller.tableView]) {
 
     // If we're not loading again and infinite scroll is enabled, then hide the footer.
     if (_infiniteScrollEnabled) {
@@ -248,7 +252,7 @@ static const CGFloat kInfiniteScrollRemainingMultiplier = 2.0f;
         _controller.tableView.tableFooterView = footerView;
       }
     }
-  }
+  //}
 }
 
 
