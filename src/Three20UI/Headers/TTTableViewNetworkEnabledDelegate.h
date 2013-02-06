@@ -42,9 +42,6 @@
 // JM: Added so we can reference constant elsewhere.
 - (CGFloat)headerVisibleHeight;
 
-// JM: Attempts to load More content if several required conditions are met.
-// Added this as a medthod so we can execute this code from multiple places.
-- (BOOL)tryLoadingMoreIfNeeded:(UIScrollView*)scrollView;
 
 @end
 

@@ -168,11 +168,42 @@ static const CGFloat kInfiniteScrollRemainingMultiplier = 2.0f;
     }
   }
 
-  // JM: Try loading more if required conditions are met. Don't try if we are we have a negative
-  // offset. This is to prevent the model from loading again after a drag-refresh load as the
-  // table's inset is animated.
-  if (scrollView.contentOffset.y > 0.0) {
-    [self tryLoadingMoreIfNeeded:scrollView];
+  // JM: Try loading more if required conditions are met.
+
+  // JM: If infiniteScroll is enabled and the model is not currently loading.
+  if (_infiniteScrollEnabled && !_model.isLoading) {
+
+    // JM: Abort if  we have a negative offset. This is to prevent the model from loading 'more'
+    // immediately after a drag-refresh finishes as the table is still animating (weird UI effects).
+    if (scrollView.contentOffset.y > 0.0) {
+
+      // JM: Calculate the height of scrollable content remaining below the visible area.
+      CGFloat scrollRemaining = scrollView.contentSize.height - scrollView.height - scrollView.contentOffset.y;
+
+      // JM: Ask the controller if we should load More based on the remaining height. If the
+      // controller doesn't respond then just compare remaining height to constant multiple of
+      // the tableView height.
+      BOOL shouldLoad;
+      if ([_controller respondsToSelector:@selector(shouldLoadAtScrollRemaining:)]) {
+        shouldLoad = [(id <TTTableNetworkEnabledTableViewController>)_controller
+                      shouldLoadAtScrollRemaining:scrollRemaining];
+
+      } else {
+        shouldLoad = scrollRemaining < (kInfiniteScrollRemainingMultiplier * scrollView.height);
+      }
+
+      if (shouldLoad) {
+        [_model load:TTURLRequestCachePolicyDefault more:YES];
+
+        // JM: Set footer height to make sure loading indicator is visible.
+        // Re-assign footerView so table recognizes new height.
+        TTTableFooterInfiniteScrollView* footerView = _footerView;
+        footerView.height = kInfiniteScrollFooterHeight;
+        [footerView setLoading:YES];
+        _controller.tableView.tableFooterView = footerView;
+      }
+
+    }
   }
 }
 
@@ -233,26 +264,19 @@ static const CGFloat kInfiniteScrollRemainingMultiplier = 2.0f;
     }
   }
 
-  // JM: Try loading more if the required conditions are met. We call this here because even
-  // after loading, it's possible that we haven't accumulated enough remaining height and we
-  // need to load More again. This behavior is particularly needed for a KLMultiModelModel with
-  // multiple More submodels to work correctly.
-  //if (![self tryLoadingMoreIfNeeded:_controller.tableView]) {
+  // If we're not loading again and infinite scroll is enabled, then hide the footer.
+  if (_infiniteScrollEnabled) {
 
-    // If we're not loading again and infinite scroll is enabled, then hide the footer.
-    if (_infiniteScrollEnabled) {
+    // JM: Set footer height to hide footer. Re-assign footerView so table recognizes new height.
+    TTTableFooterInfiniteScrollView* footerView = _footerView;
+    footerView.height = kNoFooterHeight;
+    [footerView setLoading:NO];
 
-      // JM: Set footer height to hide footer. Re-assign footerView so table recognizes new height.
-      TTTableFooterInfiniteScrollView* footerView = _footerView;
-      footerView.height = kNoFooterHeight;
-      [footerView setLoading:NO];
-
-      // JM: only re-assign if it's currently being shown, otherwise controller could be overriding.
-      if (_controller.tableView.tableFooterView == footerView) {
-        _controller.tableView.tableFooterView = footerView;
-      }
+    // JM: only re-assign if it's currently being shown, otherwise controller could be overriding.
+    if (_controller.tableView.tableFooterView == footerView) {
+      _controller.tableView.tableFooterView = footerView;
     }
-  //}
+  }
 }
 
 
@@ -291,45 +315,6 @@ static const CGFloat kInfiniteScrollRemainingMultiplier = 2.0f;
 - (CGFloat)headerVisibleHeight {
   return kHeaderVisibleHeight;
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-- (BOOL)tryLoadingMoreIfNeeded:(UIScrollView*)scrollView {
-
-  // JM: If infiniteScroll is enabled and the model is not currently loading.
-  if (_infiniteScrollEnabled && !_model.isLoading) {
-
-    // JM: Calculate the height of scrollable content remaining below the visible area.
-    CGFloat scrollRemaining = scrollView.contentSize.height - scrollView.height - scrollView.contentOffset.y;
-
-    // JM: Ask the controller if we should load More based on the remaining height. If the
-    // controller doesn't respond then just compare remaining height to constant multiple of
-    // the tableView height.
-    BOOL shouldLoad;
-    if ([_controller respondsToSelector:@selector(shouldLoadAtScrollRemaining:)]) {
-      shouldLoad = [(id <TTTableNetworkEnabledTableViewController>)_controller
-                    shouldLoadAtScrollRemaining:scrollRemaining];
-
-    } else {
-      shouldLoad = scrollRemaining < (kInfiniteScrollRemainingMultiplier * scrollView.height);
-    }
-
-    if (shouldLoad) {
-      [_model load:TTURLRequestCachePolicyDefault more:YES];
-
-      // JM: Set footer height to make sure loading indicator is visible.
-      // Re-assign footerView so table recognizes new height.
-      TTTableFooterInfiniteScrollView* footerView = _footerView;
-      footerView.height = kInfiniteScrollFooterHeight;
-      [footerView setLoading:YES];
-      _controller.tableView.tableFooterView = footerView;
-
-      return YES;
-    }
-  }
-
-  return NO;
-}
-
 
 
 @end
