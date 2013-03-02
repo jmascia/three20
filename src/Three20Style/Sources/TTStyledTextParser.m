@@ -222,6 +222,10 @@
     TTStyledImageNode* node = [[[TTStyledImageNode alloc] init] autorelease];
     node.className =  [attributeDict objectForKey:@"class"];
     node.URL =  [attributeDict objectForKey:@"src"];
+
+    // JM: Dirty HTML hack to enable highlighted version of images embedded in HTML.
+    node.highlightedURL = [attributeDict objectForKey:@"highlightedSrc"];
+
     NSString* width = [attributeDict objectForKey:@"width"];
     if (width) {
       node.width = width.floatValue;

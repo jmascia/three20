@@ -34,6 +34,7 @@
 
 @synthesize imageNode = _imageNode;
 @synthesize style     = _style;
+@synthesize isHighlighted = _isHighlighted;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,11 +63,24 @@
   CGContextAddRect(ctx, rect);
   CGContextClip(ctx);
 
-  UIImage* image = _imageNode.image ? _imageNode.image : _imageNode.defaultImage;
+  UIImage* image = [self imageForState];
   [image drawInRect:rect contentMode:UIViewContentModeScaleAspectFit];
   CGContextRestoreGState(ctx);
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (UIImage*)imageForState {
+  UIImage* image = nil;
+
+  if (_isHighlighted && _imageNode.highlightedImage) {
+    image = _imageNode.highlightedImage;
+
+  } else {
+    image = _imageNode.image ? _imageNode.image : _imageNode.defaultImage;
+  }
+
+  return image;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +101,7 @@
     contentMode = imageStyle.contentMode;
   }
 
-  UIImage* image = _imageNode.image ? _imageNode.image : _imageNode.defaultImage;
+  UIImage* image = [self imageForState];
   [image drawInRect:context.contentFrame contentMode:contentMode];
 
   CGContextRestoreGState(ctx);

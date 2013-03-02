@@ -19,14 +19,18 @@
 
 @interface TTStyledImageNode : TTStyledElement {
   NSString* _URL;
+  NSString* _highlightedURL;
   UIImage*  _image;
+  UIImage*  _highlightedImage;
   UIImage*  _defaultImage;
   CGFloat   _width;
   CGFloat   _height;
 }
 
 @property (nonatomic, copy)   NSString* URL;
+@property (nonatomic, copy)   NSString* highlightedURL;
 @property (nonatomic, retain) UIImage*  image;
+@property (nonatomic, retain) UIImage*  highlightedImage;
 @property (nonatomic, retain) UIImage*  defaultImage;
 @property (nonatomic)         CGFloat   width;
 @property (nonatomic)         CGFloat   height;

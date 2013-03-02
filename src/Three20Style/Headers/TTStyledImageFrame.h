@@ -23,6 +23,7 @@
 @interface TTStyledImageFrame : TTStyledFrame <TTStyleDelegate> {
   TTStyledImageNode*  _imageNode;
   TTStyle*            _style;
+  BOOL                _isHighlighted;
 }
 
 /**
@@ -34,6 +35,12 @@
  * The style used to render the frame;
  */
 @property (nonatomic, retain) TTStyle* style;
+
+/**
+ * JM: Dirty HTML hack to enable highlighted version of images embedded in HTML.
+ */
+@property (nonatomic, assign) BOOL isHighlighted;
+
 
 - (id)initWithElement:(TTStyledElement*)element node:(TTStyledImageNode*)node;
 

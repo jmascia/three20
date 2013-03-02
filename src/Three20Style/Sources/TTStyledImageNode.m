@@ -29,7 +29,9 @@
 @implementation TTStyledImageNode
 
 @synthesize URL           = _URL;
+@synthesize highlightedURL = _highlightedURL;
 @synthesize image         = _image;
+@synthesize highlightedImage = _highlightedImage;
 @synthesize defaultImage  = _defaultImage;
 @synthesize width         = _width;
 @synthesize height        = _height;
@@ -59,7 +61,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
   TT_RELEASE_SAFELY(_URL);
+  TT_RELEASE_SAFELY(_highlightedURL);
   TT_RELEASE_SAFELY(_image);
+  TT_RELEASE_SAFELY(_highlightedImage);
   TT_RELEASE_SAFELY(_defaultImage);
 
   [super dealloc];
@@ -81,6 +85,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSString*)outerHTML {
   NSString* html = [NSString stringWithFormat:@"<img src=\"%@\"/>", _URL];
+
+  // JM: Dirty HTML hack to enable highlighted version of images embedded in HTML.
+  if (_highlightedURL != nil) {
+    html = [NSString stringWithFormat:
+            @"<img src=\"%@\" highlightedSrc=\"%@\"/>",
+            _URL, _highlightedURL];
+  }
+
   if (_nextSibling) {
     return [NSString stringWithFormat:@"%@%@", html, _nextSibling.outerHTML];
 
@@ -107,6 +119,21 @@
 
     } else {
       self.image = nil;
+    }
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)setHighlightedURL:(NSString *)highlightedURL {
+  if (nil == _highlightedURL || ![highlightedURL isEqualToString:_highlightedURL]) {
+    [_highlightedURL release];
+    _highlightedURL = [highlightedURL retain];
+
+    if (nil != _highlightedURL) {
+      self.highlightedImage = [[TTURLCache sharedCache] imageForURL:_highlightedURL];
+
+    } else {
+      self.highlightedImage = nil;
     }
   }
 }

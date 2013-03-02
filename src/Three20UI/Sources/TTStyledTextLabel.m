@@ -34,6 +34,7 @@
 // - Styled frames
 #import "Three20Style/TTStyledInlineFrame.h"
 #import "Three20Style/TTStyledTextFrame.h"
+#import "Three20Style/TTStyledImageFrame.h"
 
 // Core
 #import "Three20Core/TTCorePreprocessorMacros.h"
@@ -255,6 +256,60 @@ static const CGFloat kCancelHighlightThreshold = 4.0f;
   return _accessibilityElements;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (void)setFrame:(TTStyledFrame*)frame highlighted:(BOOL)highlighted {
+
+  // JM: Starting with given frame, if frame is a BoxFrame, traverse nextFrames unless a BoxFrame
+  // has a firstChildFrame. Then descend to childFrame and traverse its nextFrames. For each
+  // BoxFrame found, update the frame's style property with the highlighted style from the
+  // style sheet. For each ImageFrame found, update it's highlighted state - if its node has a
+  // highlighted version of the image this will get displayed.
+  while (frame) {
+
+    // JM: It appears that BoxFrame's nextFrame only links to other BoxFrames. You must descend
+    // to its firstChildFrame to access text/images/inline frames.
+    if ([frame isKindOfClass:[TTStyledBoxFrame class]]) {
+      NSString* className = frame.element.className;
+
+      // JM: Check if the class supports state. If so get the relevant state from the style sheet.
+      TTStyle* style = nil;
+      if (className && [className rangeOfString:@":"].location != NSNotFound) {
+        if (_highlighted) {
+          style = [TTSTYLESHEET styleWithSelector:className
+                                         forState:UIControlStateHighlighted];
+
+        } else {
+          style = [TTSTYLESHEET styleWithSelector:className
+                                         forState:UIControlStateNormal];
+
+        }
+      }
+
+      // JM: If we found a style, then set it to the frame.
+      if (style) {
+        [self setStyle:style forFrame:(TTStyledBoxFrame*)frame];
+      }
+
+      // JM: If the BoxFrame has a childFrame, then traverse its nextFrames looking for
+      // imageFrames to update with highlighted state. If we hit a BoxFrame, then call this
+      // method recrusively.
+      TTStyledFrame* childFrame = ((TTStyledBoxFrame*)frame).firstChildFrame;
+      while (childFrame) {
+
+        if ([childFrame isKindOfClass:[TTStyledImageFrame class]]) {
+          ((TTStyledImageFrame*)childFrame).isHighlighted = _highlighted;
+
+        } else if ([childFrame isKindOfClass:[TTStyledBoxFrame class]]) {
+          [self setFrame:childFrame highlighted:highlighted];
+        }
+
+        childFrame = childFrame.nextFrame;
+      }
+    }
+
+    frame = frame.nextFrame;
+  }
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -535,7 +590,6 @@ static const CGFloat kCancelHighlightThreshold = 4.0f;
 }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * JM: Overriding default setter funtionality. If a frame's style (TTTextStyle)
@@ -550,36 +604,15 @@ static const CGFloat kCancelHighlightThreshold = 4.0f;
     _highlighted = highlighted;
 
     TTStyledFrame* frame = _text.rootFrame;
-    while (frame) {
 
-      if ([frame isKindOfClass:[TTStyledBoxFrame class]]) {
-        NSString* className = frame.element.className;
-
-        TTStyle* style = nil;
-        if (className && [className rangeOfString:@":"].location != NSNotFound) {
-          if (_highlighted) {
-            style = [TTSTYLESHEET styleWithSelector:className
-                                           forState:UIControlStateHighlighted];
-
-          } else {
-            style = [TTSTYLESHEET styleWithSelector:className
-                                           forState:UIControlStateNormal];
-
-          }
-
-        }
-
-        if (style) {
-          [self setStyle:style forFrame:(TTStyledBoxFrame*)frame];
-        }
-      }
-
-      frame = frame.nextFrame;
-    }
+    // JM: Recursive method that traverses all the frames and updates for highlighted state.
+    [self setFrame:frame highlighted:highlighted];
 
     [self setNeedsDisplay];
   }
 }
 
 
+
 @end
+
