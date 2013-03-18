@@ -26,7 +26,10 @@
 #import "Three20Core/TTDebugFlags.h"
 #import "Three20Core/NSStringAdditions.h"
 
-static const  CGFloat   kLargeImageSize = 800.0f * 800.0f;
+// JM: Increased the pixel limit for an image stored in memory cache, so that locally captured
+// photos (800 x 1200) can be viewed from cache while waiting for transcoding on the backend.
+// If we make these photos larger, we probably need to increase this threshold more.
+static const  CGFloat   kLargeImageSize = 1000.0f * 1000.0f;
 
 static        NSString* kDefaultCacheName       = @"Three20";
 static        NSString* kEtagCacheDirectoryName = @"etag";
@@ -264,7 +267,8 @@ static NSMutableDictionary* gNamedCaches = nil;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (BOOL)imageExistsFromDocuments:(NSString*)URL {
+- (BOOL)imageExistsFrom
+:(NSString*)URL {
   NSString* path = TTPathForDocumentsResource([URL substringFromIndex:12]);
   NSFileManager* fm = [NSFileManager defaultManager];
   return [fm fileExistsAtPath:path];
