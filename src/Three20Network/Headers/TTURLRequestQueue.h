@@ -17,6 +17,11 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+// JM: Custom notification indicates that image data was loaded from the network (not cache).
+extern NSString* const TTNotificationDidLoadImageFromNetwork;
+extern NSString* const TTNotificationKeyURLPath;
+
+
 @class TTURLRequest;
 
 @interface TTURLRequestQueue : NSObject {

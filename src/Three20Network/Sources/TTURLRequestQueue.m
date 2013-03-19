@@ -34,6 +34,12 @@
 #import "Three20Core/TTDebugFlags.h"
 #import "Three20Core/TTDebug.h"
 
+
+// JM: Custom notification indicates that image data was loaded from the network (not cache).
+NSString* const TTNotificationDidLoadImageFromNetwork = @"TTRequestQueueDidLoadImageFromNetwork";
+NSString* const TTNotificationKeyURLPath = @"TTRequestQueueKeyURLPath";
+
+
 static const NSTimeInterval kFlushDelay = 0.3;
 static const NSTimeInterval kTimeout = 300.0;
 static const NSInteger kMaxConcurrentLoads = 5;
@@ -638,6 +644,36 @@ static TTURLRequestQueue* gMainQueue = nil;
           }
         }
       }
+
+      // JM: In other parts of our app, we need to be notified when image data is downloaded
+      // from the network. If we got here, it means loader was loaded from network.
+
+      // Make sure loader has at least one request.
+      if (loader.requests.count > 0) {
+
+        // Look at the first request (for efficiency/simplicity - they should have same response type).
+        id firstRequest = [loader.requests objectAtIndex:0];
+
+        if ([firstRequest isKindOfClass:[TTURLRequest class]]) {
+
+          // If it's loading an image...
+          if ([((TTURLRequest*)firstRequest).response isKindOfClass:[TTURLImageResponse class]]) {
+
+            // and we actually received data...
+            if (data != nil) {
+
+              // Then post a notification with the remote URL path for the loaded image.
+              NSMutableDictionary* userInfo = [NSMutableDictionary dictionary];
+              [userInfo setValue:loader.urlPath forKey:TTNotificationKeyURLPath];
+
+              [[NSNotificationCenter defaultCenter] postNotificationName:TTNotificationDidLoadImageFromNetwork
+                                                                  object:self
+                                                                userInfo:userInfo];
+            }
+          }
+        }
+      }
+
 
       [[TTURLCache sharedCache] storeData:data forKey:loader.cacheKey];
     }
