@@ -267,8 +267,7 @@ static NSMutableDictionary* gNamedCaches = nil;
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-- (BOOL)imageExistsFrom
-:(NSString*)URL {
+- (BOOL)imageExistsFromDocuments:(NSString*)URL {
   NSString* path = TTPathForDocumentsResource([URL substringFromIndex:12]);
   NSFileManager* fm = [NSFileManager defaultManager];
   return [fm fileExistsAtPath:path];
@@ -372,6 +371,14 @@ static NSMutableDictionary* gNamedCaches = nil;
   NSString* filePath = [self cachePathForURL:URL];
   NSFileManager* fm = [NSFileManager defaultManager];
   return [fm fileExistsAtPath:filePath];
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+- (BOOL)hasDataForURL:(NSString *)URL expires:(NSTimeInterval)expirationAge {
+  NSString* key = [self keyForURL:URL];
+  
+  return [self hasDataForKey:key expires:expirationAge];
 }
 
 

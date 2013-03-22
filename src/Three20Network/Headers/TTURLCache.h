@@ -119,6 +119,13 @@
 - (BOOL)hasDataForURL:(NSString*)URL;
 
 /**
+ * JM: Determines if there is a cache entry for a URL that is newer than a minimum timestamp.
+ *
+ * @return NO if the URL is not cached or if the cache entry is older than the minimum.
+ */
+- (BOOL)hasDataForURL:(NSString *)URL expires:(NSTimeInterval)expirationAge;
+
+/**
  * Determines if there is a cache entry for a key.
  */
 - (BOOL)hasDataForKey:(NSString*)key expires:(NSTimeInterval)expirationAge;
