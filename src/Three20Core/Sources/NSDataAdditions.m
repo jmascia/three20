@@ -59,6 +59,21 @@ TT_FIX_CATEGORY_BUG(NSDataAdditions)
   ];
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+-(BOOL)isValidJPEG {
+  if (self.length < 2) return NO;
+
+  NSInteger totalBytes = self.length;
+  const char *bytes = (const char*)[self bytes];
+
+  return (bytes[0] == (char)0xff &&
+          bytes[1] == (char)0xd8 &&
+          bytes[totalBytes-2] == (char)0xff &&
+          bytes[totalBytes-1] == (char)0xd9);
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // base64 code found on http://www.cocoadev.com/index.pl?BaseSixtyFour
 // where the poster released it to public domain
@@ -166,5 +181,6 @@ static const char encodingTable[] =
 }
 // end recycled base64 code
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 @end

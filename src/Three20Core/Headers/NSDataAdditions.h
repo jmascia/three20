@@ -32,6 +32,13 @@
  */
 @property (nonatomic, readonly) NSString* sha1Hash;
 
+/**
+ * JM: Determines whether the data represents a valid JPEG encoding.
+ * (code from http://stackoverflow.com/a/11054447/268153 )
+ *
+ * @return YES or NO.
+ */
+@property (nonatomic, readonly) BOOL isValidJPEG;
 
 /**
  * Create an NSData from a base64 encoded representation

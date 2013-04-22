@@ -23,6 +23,7 @@
 
 // Core
 #import "Three20Core/TTDebug.h"
+#import "Three20Core/NSDataAdditions.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +82,30 @@
     if (nil == image) {
       image = [UIImage imageWithData:data];
     }
+
+    // JM: If the request refers to a JPEG image file, and the returned data is corrupt,
+    // then clear the image (locally and from cache). This will cause method to return an error.
+    NSString* pathExtension = request.urlPath.pathExtension;
+    if (pathExtension != nil) {
+      if (([@"jpeg" caseInsensitiveCompare:pathExtension] == NSOrderedSame) ||
+          ([@"jpg" caseInsensitiveCompare:pathExtension] == NSOrderedSame))
+      {
+
+        // JM: Check if the data is invalid.
+        if (![data isValidJPEG]) {
+
+          NSLog(@"Corrupt JPEG: %@", request.urlPath);
+
+          // JM: Remove the cached image for the URL from memory and disk.
+          [[TTURLCache sharedCache] removeURL:request.urlPath fromDisk:YES];
+
+          // JM: Clear the local reference to the image so an error is generated.
+          image = nil;
+        }
+      }
+    }
+
+
     if (nil != image) {
       if (!request.respondedFromCache) {
         // XXXjoe Working on option to scale down really large images to a smaller size to save memory
